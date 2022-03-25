@@ -108,7 +108,7 @@ class Simulation:
         for c in self.customers:
             if self.checkShelves(c) == True:
                 needsDispatch.append(c)
-            checkStandTemp(c)
+            self.checkStandTemp(c)
         return
     
     def checkShelves(self, c):
