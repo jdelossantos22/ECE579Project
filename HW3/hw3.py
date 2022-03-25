@@ -53,6 +53,9 @@ def get_loc(goal,val):
 def printMatrix(mat):
     print(pd.DataFrame(mat).to_string(index=False, header=False))
     
+def a_star(initial, goal, heuristic):
+    print(heuristic(initial,goal))
+    return
 
 def main():
     openList = []
@@ -64,6 +67,8 @@ def main():
                 [8,-1,4],
                 [7,6,5]]
     printMatrix(initialState)
+    a_star(initialState, goalState, manhattan)
+    
     
 if __name__ == "__main__":
     main()
