@@ -141,8 +141,18 @@ def manhattan(mat, goal):
                 np.abs(j-location_in_goal[1]) 
     return cost
 
+def get_loc(goal,val):
+    location = (0,0)
+    for i in range(len(goal)):
+        for j in range(len(goal[i])):
+            if(goal[i][j] == val):
+                return (i,j)
+    return location
+
 def main():
     puz = Puzzle(3, manhattan)
+    puz.process()
+    puz = Puzzle(3, euclidean)
     puz.process()
     
 if __name__ == "__main__":
