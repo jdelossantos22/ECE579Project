@@ -1,3 +1,4 @@
+import numpy as np
 class Node:
     def __init__(self,data,level,fval):
         """ Initialize the node with the data, level of the node and the calculated fvalue """
@@ -53,11 +54,12 @@ class Node:
 
 
 class Puzzle:
-    def __init__(self,size):
+    def __init__(self,size, heuristic):
         """ Initialize the puzzle size by the specified size,open and closed lists to empty """
         self.n = size
         self.open = []
         self.closed = []
+        self.heuristic = heuristic
 
     def accept(self):
         """ Accepts the puzzle from the user """
@@ -69,7 +71,7 @@ class Puzzle:
 
     def f(self,start,goal):
         """ Heuristic Function to calculate hueristic value f(x) = h(x) + g(x) """
-        return self.h(start.data,goal)+start.level
+        return self.heuristic(start.data,goal)+start.level
 
     def h(self,start,goal):
         """ Calculates the different between the given puzzles """
@@ -79,6 +81,7 @@ class Puzzle:
                 if start[i][j] != goal[i][j] and start[i][j] != '_':
                     temp += 1
         return temp
+    
         
 
     def process(self):
@@ -104,7 +107,7 @@ class Puzzle:
                     print(j,end=" ")
                 print("")
             """ If the difference between current and goal node is 0 we have reached the goal node"""
-            if(self.h(cur.data,goal) == 0):
+            if(self.heuristic(cur.data,goal) == 0):
                 break
             for i in cur.generate_child():
                 i.fval = self.f(i,goal)
@@ -114,7 +117,33 @@ class Puzzle:
 
             """ sort the opne list based on f value """
             self.open.sort(key = lambda x:x.fval,reverse=False)
+    
+def euclidean(mat, goal):
+    #heuristic #1
+    #euclidena distance
+    cost = 0
+    for i in range(len(mat)):
+        for j in range(len(mat[i])):
+            location_in_goal = get_loc(goal, mat[i][j]) 
+            dist_x = np.abs(i - location_in_goal[0])
+            dist_y = np.abs(j-location_in_goal[1])
+            cost += np.sqrt(dist_x^2 + dist_y^2)
+    return cost
 
+def manhattan(mat, goal):
+    #heuristic #2
+    #manhattan distance(number of tiles to goal)
+    cost = 0
+    for i in range(len(mat)):
+        for j in range(len(mat[i])):
+            location_in_goal = get_loc(goal, mat[i][j])
+            cost += np.abs(i - location_in_goal[0]) + \
+                np.abs(j-location_in_goal[1]) 
+    return cost
 
-puz = Puzzle(3)
-puz.process()
+def main():
+    puz = Puzzle(3, manhattan)
+    puz.process()
+    
+if __name__ == "__main__":
+    main()
