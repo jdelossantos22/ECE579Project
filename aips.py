@@ -5,12 +5,19 @@ class Dispatcher(Node):
         Node.__init__(self, name)
         return
     
-    def dispatch(self, customers):
+    def addCustomers(self, customers):
+        self.customers = customers
+    
+    def dispatch(self):
         #numBottles is number of bottles to be dispatched
         #instantiate the bottles
-        numBottles = sum([c.replenishNum for c in customers])
+        numBottles = sum([c.replenishNum for c in self.needsDispatch])
         self.bottles = [Bottle for i in range(numBottles)]
         #call TSP method on customers list to be replenished
+        
+    def buildTSPArray(self):
+        #build array that we can pass into tsp.py
+        pass
         
     def checkCustomersReplenish(self):
         self.needsDispatch = []
@@ -29,7 +36,7 @@ class Customer(Node):
         self.fullShelf = Shelf(3,0)
         self.stand = Stand()
         self.replenish = True
-        self.replenishNum = 0 #number of bottles to be replenished?
+        self.replenishNum = 3 #number of bottles to be replenished?
         
     def checkShelves(self):
         if self.fullShelf.curBottles == 1 and \
@@ -98,9 +105,9 @@ class Chilled_Stand(Stand):
     
     
 class Bottle:
-    newid = itertools.count().next
+    newid = itertools.count()
     def __init__(self, type="Plastic", capacity=4.0):
-        self.id = Bottle.newid()
+        self.id = next(Bottle.newid)
         self.type = type #plastic(default) or clear glass
         self.capacity = capacity #4 gallons(default) or 6 gallons
         self.curVolume = 0.0 #initial state is empty shelves empty bottles
@@ -126,9 +133,9 @@ class Bottle:
         self.curVolume += val
     
 class Shelf:
-    newid = itertools.count().next
+    newid = itertools.count()
     def __init__(self, type = "", numBottle=0, maxBottle=2):
-        self.id = Shelf.newid()
+        self.id = next(Shelf.newid)
         self.type = type
         self.numBottle=numBottle
         self.maxBottle=maxBottle

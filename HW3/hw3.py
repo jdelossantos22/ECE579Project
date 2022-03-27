@@ -99,7 +99,7 @@ class Puzzle:
         print("\n\n")
         while True:
             cur = self.open[0]
-            '''
+            
             print("")
             print("  | ")
             print("  | ")
@@ -108,7 +108,7 @@ class Puzzle:
                 for j in i:
                     print(j,end=" ")
                 print("")
-            '''
+            
             """ If the difference between current and goal node is 0 we have reached the goal node"""
             if(self.heuristic(cur.data,goal) == 0):
                 break
