@@ -1,4 +1,5 @@
 import numpy as np
+import time
 class Node:
     def __init__(self,data,level,fval):
         """ Initialize the node with the data, level of the node and the calculated fvalue """
@@ -98,6 +99,7 @@ class Puzzle:
         print("\n\n")
         while True:
             cur = self.open[0]
+            '''
             print("")
             print("  | ")
             print("  | ")
@@ -106,6 +108,7 @@ class Puzzle:
                 for j in i:
                     print(j,end=" ")
                 print("")
+            '''
             """ If the difference between current and goal node is 0 we have reached the goal node"""
             if(self.heuristic(cur.data,goal) == 0):
                 break
@@ -150,10 +153,12 @@ def get_loc(goal,val):
     return location
 
 def main():
-    puz = Puzzle(3, manhattan)
-    puz.process()
+    start_time = time.time()
     puz = Puzzle(3, euclidean)
     puz.process()
+    print("--- %s seconds ---" % (time.time() - start_time))
+    #puz = Puzzle(3, manhattan)
+    #puz.process()
     
 if __name__ == "__main__":
     main()
