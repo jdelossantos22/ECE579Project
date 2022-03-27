@@ -1,12 +1,14 @@
 import itertools
 from graph import Edge, Node, Graph
+import numpy as np
 class Dispatcher(Node):
     def __init__(self, name="Dispatcher"):
         Node.__init__(self, name)
         return
     
-    def addCustomers(self, customers):
+    def addCustomers(self, customers, graph):
         self.customers = customers
+        self.graph = graph
     
     def dispatch(self):
         #numBottles is number of bottles to be dispatched
@@ -14,10 +16,8 @@ class Dispatcher(Node):
         numBottles = sum([c.replenishNum for c in self.needsDispatch])
         self.bottles = [Bottle for i in range(numBottles)]
         #call TSP method on customers list to be replenished
+        self.graph.tsp_arr(self.needsDispatch)
         
-    def buildTSPArray(self):
-        #build array that we can pass into tsp.py
-        pass
         
     def checkCustomersReplenish(self):
         self.needsDispatch = []
@@ -25,7 +25,9 @@ class Dispatcher(Node):
         for c in self.customers:
             if c.checkShelves() == True:
                 self.needsDispatch.append(c)
-        return
+                
+        print(self.needsDispatch)
+        return len(self.needsDispatch)
         
 
 class Customer(Node):
@@ -38,11 +40,14 @@ class Customer(Node):
         self.replenish = True
         self.replenishNum = 3 #number of bottles to be replenished?
         
+        
     def checkShelves(self):
-        if self.fullShelf.curBottles == 1 and \
-            self.stand.bottle.curVolume <= (1/4)*self.stand.bottle.capacity:
-                self.replenish = True
-                return True
+        if self.fullShelf.curBottles <= 1:
+            self.replenish = True
+            return True
+        elif self.stand.bottle.curVolume <= (1/4)*self.stand.bottle.capacity:
+            self.replenish = True
+            return True
         else: 
             return False
     def checkLeak(self):
@@ -131,17 +136,17 @@ class Bottle:
         self.curVolume -= val
     def incrementVol(self, val):
         self.curVolume += val
-    
-class Shelf:
-    newid = itertools.count()
-    def __init__(self, type = "", numBottle=0, maxBottle=2):
-        self.id = next(Shelf.newid)
-        self.type = type
-        self.numBottle=numBottle
-        self.maxBottle=maxBottle
+
         
 class Robot:
     def __init__(self):
         return
         
+        
+        
+        
+if __name__ == "__main__":
+    customer = Customer("A")
+    print(customer)
+    
 

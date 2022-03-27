@@ -18,9 +18,11 @@ class Simulation:
         self.dispatcher = Dispatcher()
         self.customers = []
         self.graph = Graph()
+        self.graph.add_node(self.dispatcher)
         for i in range(self.numCustomers):
             c = Customer(input(f'Please enter name for customer {i}: '))
             self.customers.append(c)
+            self.graph.add_node(c)
         #build graph
         #initialize
         cCombination = itertools.combinations(self.customers,2)
@@ -37,17 +39,16 @@ class Simulation:
             dist = input(f"Please enter distance between {str(cust1)} and {str(cust2)}: ")
             self.graph.add_edge(cust1,cust2,dist)
             
-        for e in self.graph.edges:
-            print(e)
+        for n in self.graph.nodes:
+            print(n.id)
             
-        self.dispatcher.addCustomers(self.customers)
+        self.dispatcher.addCustomers(self.customers, self.graph)
         
     def run(self):
         #pseudo-code for the states
-        self.dispatcher.checkCustomersReplenish()
-        if (len(self.dispatcher.needsDispatch) > 0):
+        num = self.dispatcher.checkCustomersReplenish()
+        if (num > 0):
             self.dispatcher.dispatch()
-        pass
     
 def main():
     numCust = input("Please enter the number of customers for simulation: ")

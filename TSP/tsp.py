@@ -51,6 +51,29 @@ def hillClimbing(tsp):
 
     return currentSolution, currentRouteLength
 
+def tsp(tsp):
+    Result = hillClimbing(tsp)
+    Optimal_PathLength = Result[1]
+    Optimal_Route = Result[0]
+    target_index = Optimal_Route.index(0)
+    array_start = Optimal_Route[target_index:]
+    array_end = Optimal_Route[:target_index + 1]
+
+    Best_Route = array_start + array_end
+
+    print("\n")
+    print("The shortest possible length distance is : ", Optimal_PathLength)
+    print("\n")
+    print("The optimal path is : ", Best_Route)
+    print("\n")
+    print ("Please note : \n")
+    print("0 indicates distribution center \n")
+    print("1 indicates customer A \n")
+    print("2 indicates customer B \n")
+    print("3 indicates customer C \n")
+    print("4 indicates customer D \n")
+    print("5 indicates customer E \n")
+
 def main():
 
     SS = 0
