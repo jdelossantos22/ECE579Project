@@ -1,14 +1,45 @@
 import itertools
-class Customer:
-    newid = itertools.count().next
-    def __init__(self, name, id):
-        self.name = name
-        self.id = Customer.newid()
+from graph import Edge, Node, Graph
+class Dispatcher(Node):
+    def __init__(self, name="Dispatcher"):
+        Node.__init__(self, name)
+        return
+    
+    def dispatch(self, customers):
+        #numBottles is number of bottles to be dispatched
+        #instantiate the bottles
+        numBottles = sum([c.replenishNum for c in customers])
+        self.bottles = [Bottle for i in range(numBottles)]
+        #call TSP method on customers list to be replenished
+        
+    def checkCustomersReplenish(self):
+        self.needsDispatch = []
+        
+        for c in self.customers:
+            if c.checkShelves() == True:
+                self.needsDispatch.append(c)
+        return
+        
+
+class Customer(Node):
+    
+    def __init__(self, name):
+        Node.__init__(self, name)
         self.emptyShelf = Shelf(2,0)
         self.fullShelf = Shelf(3,0)
         self.stand = Stand()
         self.replenish = True
         self.replenishNum = 0 #number of bottles to be replenished?
+        
+    def checkShelves(self):
+        if self.fullShelf.curBottles == 1 and \
+            self.stand.bottle.curVolume <= (1/4)*self.stand.bottle.capacity:
+                self.replenish = True
+                return True
+        else: 
+            return False
+    def checkLeak(self):
+        pass
         
 class Shelf:
     def __init__(self, capacity, bottles=0):
@@ -44,7 +75,26 @@ class Stand:
 
 class Chilled_Stand(Stand):
     def __init__(self):
+        self.cooler = False
+        self.threshold = 42.0
+        self.dt = 2
+        self.temperature = 42.0
         return
+    def coolerOn(self):
+        self.cooler = True
+        return
+    def coolerOff(self):
+        self.cooler = False
+    def increment(self):
+        self.temperature += 1
+    def decrement(self):
+        self.temperature -= 1
+    def checkTemp(self):
+        if self.temperature >= self.threshold + self.dt:
+            self.coolerOn()
+        elif self.temperature <= self.threshold - self.dt:
+            self.coolerOff()
+        
     
     
 class Bottle:
@@ -70,6 +120,10 @@ class Bottle:
         self.curVolume = v
     def getCurVolume(self):
         return self.curVolume
+    def decrementVol(self, val):
+        self.curVolume -= val
+    def incrementVol(self, val):
+        self.curVolume += val
     
 class Shelf:
     newid = itertools.count().next
@@ -83,46 +137,4 @@ class Robot:
     def __init__(self):
         return
         
-class Dispatcher:
-    def __init__(self):
-        return
-    
-    def dispatch(self, customers):
-        #numBottles is number of bottles to be dispatched
-        #instantiate the bottles
-        numBottles = sum([c.replenishNum for c in customers])
-        self.bottles = [Bottle for i in range(numBottles)]
-        #call TSP method on customers list to be replenished
-        
 
-class Simulation:
-    def __init__(self, customers):
-        #needs customer(s)
-        #needs edges(distance for each customer)
-        self.customers = customers
-        return
-    
-    def run(self):
-        #pseudo-code for the states
-        needsDispatch = []
-        for c in self.customers:
-            if self.checkShelves(c) == True:
-                needsDispatch.append(c)
-            self.checkStandTemp(c)
-        return
-    
-    def checkShelves(self, c):
-        if c.fullShelf.curBottles == 1 and \
-            c.stand.bottle.curVolume <= (1/4)*c.stand.bottle.capacity:
-                c.replenish = True
-                return True
-        else: 
-            return False
-        
-    def checkStandTemp(self, c):
-        #checking temperature of chilled stand
-        return
-    
-    def checkForLeak(self, c):
-        #check for leak
-        return

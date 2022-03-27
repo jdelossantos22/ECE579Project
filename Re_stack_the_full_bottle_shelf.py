@@ -393,32 +393,32 @@ if __name__ == '__main__':
 
     last_element = [steps[-6], steps[-5]]
 
-for x in last_element:
-  steps.append(x)
+    for x in last_element:
+        steps.append(x)
 
-print("")
-print("Re-stack the full-bottle-vertical shelf ")
-print("Set the bottle that is already in the shelf to the top of the stack (to preserve water freshness).")
-print("")
-print("Initial shelf state: after adding new full bottles : ")
+    print("")
+    print("Re-stack the full-bottle-vertical shelf ")
+    print("Set the bottle that is already in the shelf to the top of the stack (to preserve water freshness).")
+    print("")
+    print("Initial shelf state: after adding new full bottles : ")
 
-print(str(newinshelf)[-2])
-print("")
-print(str(middle_1)[-2])
-print("")
-print(str(alreadyinshelf)[-2])
+    print(str(newinshelf)[-2])
+    print("")
+    print(str(middle_1)[-2])
+    print("")
+    print(str(alreadyinshelf)[-2])
 
-print("----------------------")
-print ("Implement an optimal plan for the robot \n")
-print(steps)
-print("----------------------")
-print("")
-print("After re-stacking the full-bottle shelf ")
-print(VeryTop)
-print("")
-print(v)
-print("")
-print(BottomBottel)
+    print("----------------------")
+    print ("Implement an optimal plan for the robot \n")
+    print(steps)
+    print("----------------------")
+    print("")
+    print("After re-stacking the full-bottle shelf ")
+    print(VeryTop)
+    print("")
+    print(v)
+    print("")
+    print(BottomBottel)
 
 
 
