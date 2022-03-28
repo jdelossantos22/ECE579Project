@@ -16,17 +16,19 @@ class Dispatcher(Node):
         numBottles = sum([c.replenishNum for c in self.needsDispatch])
         self.bottles = [Bottle for i in range(numBottles)]
         #call TSP method on customers list to be replenished
+        print(f"The following customers needs replenishing: {self.needsDispatch}")
         self.graph.tsp_arr(self.needsDispatch)
         
         
     def checkCustomersReplenish(self):
+        print("Checking which customers needs to be replenished")
         self.needsDispatch = []
         
         for c in self.customers:
             if c.checkShelves() == True:
                 self.needsDispatch.append(c)
                 
-        print(self.needsDispatch)
+        #print(self.needsDispatch)
         return len(self.needsDispatch)
         
 

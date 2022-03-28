@@ -39,8 +39,8 @@ class Simulation:
             dist = input(f"Please enter distance between {str(cust1)} and {str(cust2)}: ")
             self.graph.add_edge(cust1,cust2,dist)
             
-        for n in self.graph.nodes:
-            print(n.id)
+        #for n in self.graph.nodes:
+        #    print(n.id)
             
         self.dispatcher.addCustomers(self.customers, self.graph)
         

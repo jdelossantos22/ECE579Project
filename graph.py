@@ -54,18 +54,13 @@ class Graph:
         return 0
         
     def tsp_arr(self, newNodes):
+        print("Finding optimal route via TSP")
         newNodes.insert(0,self.nodes[0])
-        print(newNodes)
+        #print(newNodes)
         tsp_perm = [n for n in itertools.product(newNodes, repeat=2)]
         
         tsp_perm = self.convertTo2d(tsp_perm, len(newNodes))
-        print(tsp_perm)
-        '''
-        for i in tsp_perm:
-            for e in self.edges:
-                if e.a == i[0] and e.b == i[1] or \
-                    e.a == i[1] and e.b == i[0]
-        '''
+        #print(tsp_perm)
         tsp_dist = []
         for i in range(len(tsp_perm)):
             tsp_dist_row = []
@@ -73,5 +68,10 @@ class Graph:
                 tsp_dist_row.append(int(self.get_dist(tsp_perm[i][j][0], tsp_perm[i][j][1])))
                 
             tsp_dist.append(tsp_dist_row)
-        print(tsp_dist)
-        tsp(tsp_dist)
+        #print(tsp_dist)
+        (Optimal_PathLength,Best_Route) = tsp(tsp_dist)
+        print("The shortest possible length distance is : ", Optimal_PathLength)
+        print("The optimal path is : ", end="")
+        [print(self.nodes[i], end=" -> ") for i in Best_Route[:-1]]
+        print(self.nodes[Best_Route[-1]])
+        

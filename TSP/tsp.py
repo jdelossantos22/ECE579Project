@@ -60,7 +60,7 @@ def tsp(tsp):
     array_end = Optimal_Route[:target_index + 1]
 
     Best_Route = array_start + array_end
-
+    '''
     print("\n")
     print("The shortest possible length distance is : ", Optimal_PathLength)
     print("\n")
@@ -73,6 +73,8 @@ def tsp(tsp):
     print("3 indicates customer C \n")
     print("4 indicates customer D \n")
     print("5 indicates customer E \n")
+    '''
+    return (Optimal_PathLength,Best_Route)
 
 def main():
 
