@@ -1,10 +1,11 @@
 from aips import *
 from graph import Graph, Node, Edge
-from Re_stack_the_full_bottle_shelf import *
+from restack import *
 import time
 import simpy
 import random
 import itertools
+import string
 
 class Simulation:
     def __init__(self, numCustomers):
@@ -20,7 +21,10 @@ class Simulation:
         self.graph = Graph()
         self.graph.add_node(self.dispatcher)
         for i in range(self.numCustomers):
-            c = Customer(input(f'Please enter name for customer {i}: '))
+            name = input(f'Please enter name for customer {i}: ')
+            if name == "":
+                name = random.choice(string.ascii_letters)
+            c = Customer(name)
             self.customers.append(c)
             self.graph.add_node(c)
         #build graph
@@ -30,14 +34,17 @@ class Simulation:
         
         for c in self.customers:
             dist = input(f"Please enter distance between {str(c)} and {str(self.dispatcher)}: ")
-            self.graph.add_edge(self.dispatcher,c,dist)
+            dist = random.uniform(1, 50) if dist == "" else dist
+                
+            self.graph.add_edge(self.dispatcher,c,float(dist))
             
         #print(list(cCombination))
         for c in list(cCombination):
             cust1 = c[0]
             cust2 = c[1]
             dist = input(f"Please enter distance between {str(cust1)} and {str(cust2)}: ")
-            self.graph.add_edge(cust1,cust2,dist)
+            dist = random.uniform(1, 50) if dist == "" else dist
+            self.graph.add_edge(cust1,cust2,float(dist))
             
         #for n in self.graph.nodes:
         #    print(n.id)
@@ -46,9 +53,19 @@ class Simulation:
         
     def run(self):
         #pseudo-code for the states
-        num = self.dispatcher.checkCustomersReplenish()
-        if (num > 0):
-            self.dispatcher.dispatch()
+        while(True):
+            num = self.dispatcher.checkCustomersReplenish()
+            if (num > 0):
+                self.dispatcher.dispatch()
+            #Step #4 call restack on every iteration of while loop
+            
+            #Step #3.b Check dispenser temperature
+            for c in self.customers:
+                temperature, status  = c.chilledStand.checkTemp()
+                print(f'{str(c)} chilled stand is at {temperature} °F and the cooler is {"ON" if status else "OFF"}')
+            time.sleep(1)
+        
+        
     
 def main():
     numCust = input("Please enter the number of customers for simulation: ")

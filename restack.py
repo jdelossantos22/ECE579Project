@@ -384,13 +384,14 @@ if __name__ == '__main__':
     goal_state = [
         ON(e,w), ON(z,v),
         ONSHELFSTAND(BottomBottel),
-         TOPBOTTLE(VeryTop),
+        TOPBOTTLE(VeryTop),
         ARMEMPTY()
     ]
 
     goal_stack = GoalStackPlanner(initial_state=initial_state, goal_state=goal_state)
     steps = goal_stack.get_steps()
 
+    print(steps)
     last_element = [steps[-6], steps[-5]]
 
     for x in last_element:

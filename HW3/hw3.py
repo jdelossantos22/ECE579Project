@@ -156,9 +156,11 @@ def main():
     start_time = time.time()
     puz = Puzzle(3, euclidean)
     puz.process()
-    print("--- %s seconds ---" % (time.time() - start_time))
-    #puz = Puzzle(3, manhattan)
-    #puz.process()
+    print("--- %s milliseconds ---" % (time.time() - start_time))
+    start_time = time.time()
+    puz = Puzzle(3, manhattan)
+    puz.process()
+    print("--- %s milliseconds ---" % (time.time() - start_time))
     
 if __name__ == "__main__":
     main()

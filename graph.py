@@ -7,7 +7,7 @@ class Edge:
     def __init__(self,a,b, distance):
         self.a = a
         self.b = b
-        self.distance=distance
+        self.distance=float(distance)
         return
     def __repr__(self):
         return f'{self.a} - {self.b} = {self.distance}'
@@ -54,11 +54,13 @@ class Graph:
         return 0
         
     def tsp_arr(self, newNodes):
+        #[print(type(x)) for x in newNodes]
         print("Finding optimal route via TSP")
-        newNodes.insert(0,self.nodes[0])
+        newNodes.insert(0,self.nodes[0]) #inserting dispatcher at the beginning
         #print(newNodes)
+        #permuations of nodes
         tsp_perm = [n for n in itertools.product(newNodes, repeat=2)]
-        
+        #print(tsp_perm)
         tsp_perm = self.convertTo2d(tsp_perm, len(newNodes))
         #print(tsp_perm)
         tsp_dist = []
@@ -74,4 +76,5 @@ class Graph:
         print("The optimal path is : ", end="")
         [print(self.nodes[i], end=" -> ") for i in Best_Route[:-1]]
         print(self.nodes[Best_Route[-1]])
+        return (Optimal_PathLength,[self.nodes[i] for i in Best_Route])
         
