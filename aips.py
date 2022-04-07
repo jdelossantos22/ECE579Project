@@ -1,6 +1,12 @@
+from copy import deepcopy
 import itertools
+from venv import create
 from graph import Edge, Node, Graph
 import numpy as np
+import datetime
+import time
+import restack
+
 class Dispatcher(Node):
     def __init__(self, name="Dispatcher"):
         Node.__init__(self, name)
@@ -25,6 +31,7 @@ class Dispatcher(Node):
             #adding bottles to shelf and also removing bottle object from list to be delivered
             full = [c.fullShelf.addBottle(self.bottles.pop(0)) for n in range(c.replenishNum)]
             c.replenish = False if full else True #checking if Full Shelf is full
+            c.delivery = True
             print(f'{c.replenishNum} bottles has been delivered to {c}')
         
         
@@ -46,12 +53,17 @@ class Customer(Node):
     
     def __init__(self, name):
         Node.__init__(self, name)
+        
         self.emptyShelf = Shelf(2,0)
         self.fullShelf = Shelf(3,0)
         self.stand = Stand()
         self.chilledStand = Chilled_Stand()
+        self.robot = Robot()
+        
         self.replenish = True
         self.replenishNum = 3 #number of bottles to be replenished?
+        self.delivery = True #there has been a delivery used to call robot restack
+        
         
         
     def checkShelves(self):
@@ -64,11 +76,15 @@ class Customer(Node):
         else: 
             return False
         
-    def delivered(self, bottles):
-        pass
+    def checkDelivered(self):
+        if self.delivery:
+            if self.robot.restack(): #if restacking is successful
+                self.delivery = False
+            
         
     def checkLeak(self):
         pass
+    
         
 class Shelf:
     def __init__(self, capacity, bottles=0):
@@ -79,6 +95,7 @@ class Shelf:
         return
     
     def addBottle(self, bottle):
+        bottle.delivered()
         self.bottles.append(bottle)
         print(f'Added Bottle {str(bottle)}')
         self.curBottles = len(self.bottles)
@@ -137,9 +154,13 @@ class Bottle:
         self.capacity = capacity #4 gallons(default) or 6 gallons
         self.curVolume = curVolume #initial state is empty shelves empty bottles
         self.curStand = "" #what is currStand
+        self.createdAt = datetime.datetime.utcnow()
+        self.deliveredAt = None
+        time.sleep(0.001)
         
     def __str__(self):
-        return str(self.id)
+        return f'{str(self.id)} : {self.createdAt} : {self.deliveredAt}'
+    
     def __repr__(self):
         return str(self.id)
     
@@ -161,17 +182,84 @@ class Bottle:
         self.curVolume -= val
     def incrementVol(self, val):
         self.curVolume += val
+    def delivered(self):
+        self.deliveredAt = datetime.datetime.utcnow()
+        time.sleep(0.001)
+    def empty(self):
+        return True if self.curVolume == 0.0 else False
 
         
 class Robot:
+    newid = itertools.count()
     def __init__(self):
-        return
+        self.id = next(Bottle.newid)
+    
+    #call restack here
+    def restack(self, bottles, onStand):
+        #deliverySorted = sorted(bottles, key=lambda x: x.deliveredAt) #delivery matters for the initial state
+        deliverySorted = bottles
+        createdSorted = sorted(bottles, key=lambda x : x.createdAt, reverse=True) #created matters for the goal state
+        print(deliverySorted)
+        print(createdSorted)
+        
+        on_states = []
+        for i in range(len(deliverySorted)):
+            try:
+                on_states.append(restack.ON(deliverySorted[i+1], deliverySorted[i]))
+            except IndexError:
+                continue
+        onstandState = restack.ONSHELFSTAND(onStand)
+        topBottleState = restack.TOPBOTTLE(deliverySorted[-1])
+        initialState = deepcopy(on_states)#[[on_states, onstandState, topBottleState, restack.ARMEMPTY()]]
+        initialState.append(onstandState)
+        initialState.append(topBottleState)
+        initialState.append(restack.ARMEMPTY())
+        print(initialState)
+        print(on_states)
+        
+        on_states = []
+        
+        #if the bottle on stand is empty replace it with the oldest water on the shelf
+        lenOnStand = len(createdSorted) - 1 if onStand.empty() else len(createdSorted)
+        onStand = createdSorted[-1] if onStand.empty() else onStand
+        
+        for i in range(lenOnStand):
+            try:
+                on_states.append(restack.ON(createdSorted[i+1], createdSorted[i]))
+            except IndexError:
+                continue
+        goalState = deepcopy(on_states)
+        goalState.append(restack.ONSHELFSTAND(onStand))
+        goalState.append(restack.TOPBOTTLE(createdSorted[lenOnStand-1]))
+        goalState.append(restack.ARMEMPTY())
+        
+        print(goalState)
+        
+        goal_stack = restack.GoalStackPlanner(initial_state=initialState, goal_state=goalState)
+        steps = goal_stack.get_steps()
+
+        print(steps)
+        last_element = [steps[-6], steps[-5]]
+
+        for x in last_element:
+            steps.append(x)
+        
+        return True
+        
         
         
         
         
 if __name__ == "__main__":
-    customer = Customer("A")
-    print(customer)
+    onstand = Bottle()
+    bottles = []
+    for i in range(3):
+        bottles.append(Bottle())
+    [b.delivered() for b in bottles]    
+    [print(b) for b in bottles]
+    
+    robot = Robot()
+    robot.restack(bottles, onstand)
+    
     
 

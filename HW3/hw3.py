@@ -97,6 +97,7 @@ class Puzzle:
         """ Put the start node in the open list"""
         self.open.append(start)
         print("\n\n")
+        maxLevel = 0
         while True:
             cur = self.open[0]
             
@@ -114,12 +115,15 @@ class Puzzle:
                 break
             for i in cur.generate_child():
                 i.fval = self.f(i,goal)
+                if i.level > maxLevel:
+                    maxLevel = i.level
                 self.open.append(i)
             self.closed.append(cur)
             del self.open[0]
 
             """ sort the opne list based on f value """
             self.open.sort(key = lambda x:x.fval,reverse=False)
+        print(f"The # of levels of the algorithm is {maxLevel}")
     
 def euclidean(mat, goal):
     #heuristic #1

@@ -57,12 +57,16 @@ class Simulation:
             num = self.dispatcher.checkCustomersReplenish()
             if (num > 0):
                 self.dispatcher.dispatch()
-            #Step #4 call restack on every iteration of while loop
             
-            #Step #3.b Check dispenser temperature
+            
+            
             for c in self.customers:
+                #Step #3.b Check dispenser temperature
                 temperature, status  = c.chilledStand.checkTemp()
                 print(f'{str(c)} chilled stand is at {temperature} °F and the cooler is {"ON" if status else "OFF"}')
+                #Step #4 call restack on every iteration of while loop
+                c.checkDelivered() #check if restack is needed
+                
             time.sleep(1)
         
         
