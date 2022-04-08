@@ -6,6 +6,9 @@ import numpy as np
 import datetime
 import time
 import restack
+import random
+
+LEAK_PERCENTAGE = 0.2
 
 class Dispatcher(Node):
     def __init__(self, name="Dispatcher"):
@@ -118,6 +121,11 @@ class Stand:
         tempBottle = self.bottle
         bottle = bottle
         return tempBottle
+    
+    def drink(self):
+        vol = random.random() * self.bottle.capacity
+        self.bottle.decrementVol(vol)
+        return vol
         
 
 class Chilled_Stand(Stand):
@@ -156,6 +164,7 @@ class Bottle:
         self.curStand = "" #what is currStand
         self.createdAt = datetime.datetime.utcnow()
         self.deliveredAt = None
+        self.leakBool = False
         time.sleep(0.001)
         
     def __str__(self):
@@ -187,6 +196,9 @@ class Bottle:
         time.sleep(0.001)
     def empty(self):
         return True if self.curVolume == 0.0 else False
+    def leak(self):
+        self.leakBool = True if random.random() < LEAK_PERCENTAGE else False
+        return self.leakBool
 
         
 class Robot:
@@ -205,11 +217,12 @@ class Robot:
         on_states = []
         for i in range(len(deliverySorted)):
             try:
-                on_states.append(restack.ON(deliverySorted[i+1], deliverySorted[i]))
+                on_states.append(restack.ON(deliverySorted[i+1].id, deliverySorted[i].id))
             except IndexError:
                 continue
-        onstandState = restack.ONSHELFSTAND(onStand)
-        topBottleState = restack.TOPBOTTLE(deliverySorted[-1])
+            
+        onstandState = restack.ONSHELFSTAND(onStand.id)
+        topBottleState = restack.TOPBOTTLE(deliverySorted[-1].id)
         initialState = deepcopy(on_states)#[[on_states, onstandState, topBottleState, restack.ARMEMPTY()]]
         initialState.append(onstandState)
         initialState.append(topBottleState)
@@ -225,11 +238,11 @@ class Robot:
         
         for i in range(lenOnStand):
             try:
-                on_states.append(restack.ON(createdSorted[i+1], createdSorted[i]))
+                on_states.append(restack.ON(createdSorted[i+1].id, createdSorted[i].id))
             except IndexError:
                 continue
         goalState = deepcopy(on_states)
-        goalState.append(restack.ONSHELFSTAND(onStand))
+        goalState.append(restack.ONSHELFSTAND(onStand.id))
         goalState.append(restack.TOPBOTTLE(createdSorted[lenOnStand-1]))
         goalState.append(restack.ARMEMPTY())
         
@@ -252,6 +265,7 @@ class Robot:
         
 if __name__ == "__main__":
     onstand = Bottle()
+    onstand.delivered()
     bottles = []
     for i in range(3):
         bottles.append(Bottle())

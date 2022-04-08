@@ -63,7 +63,8 @@ class Simulation:
             for c in self.customers:
                 #Step #3.b Check dispenser temperature
                 temperature, status  = c.chilledStand.checkTemp()
-                print(f'{str(c)} chilled stand is at {temperature} °F and the cooler is {"ON" if status else "OFF"}')
+                print(f'{str(c)} chilled stand is at {temperature} °F and the cooler is \
+                      {"ON" if status else "OFF"}')
                 #Step #4 call restack on every iteration of while loop
                 c.checkDelivered() #check if restack is needed
                 
