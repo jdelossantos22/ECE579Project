@@ -7,6 +7,7 @@ Spring 2022
  
 Semester Project 
  
+For the GUI: KIVY: https://kivy.org/doc/stable/gettingstarted/installation.html#install-pip
  
 Due: April 27 (11pm), 2022 via D2L 
 Documents to be submitted 

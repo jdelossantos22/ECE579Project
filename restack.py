@@ -60,8 +60,7 @@ class ON(PREDICATE):
     def get_action(self, world_state):
         return StackOp(self.X, self.Y)
 
-
-class ONSHELFSTAND(PREDICATE):
+class ONSHELFSTAND(PREDICATE): #onshelfstand is technically exactly the same as ontable
 
     def __init__(self, X):
         self.X = X
@@ -80,9 +79,30 @@ class ONSHELFSTAND(PREDICATE):
 
     def get_action(self, world_state):
         return PutdownOp(self.X)
+    
+class ONTABLE(PREDICATE):
+    def __init__(self, X):
+        self.X = X
+
+    def __str__(self):
+        return "ONTABLE({X})".format(X=self.X)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other) : 
+        return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def get_action(self, world_state):
+        return PutdownOp(self.X)
 
 
-class TOPBOTTLE(PREDICATE):
+
+
+class TOPBOTTLE(PREDICATE): #clear
 
     def __init__(self, X):
         self.X = X
@@ -226,10 +246,10 @@ class PickupOp(Operation):
         return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
 
     def precondition(self):
-        return [TOPBOTTLE(self.X), ONSHELFSTAND(self.X), ARMEMPTY()]
+        return [TOPBOTTLE(self.X), ONSHELFSTAND(self.X), ONTABLE(self.X), ARMEMPTY()]
 
     def delete(self):
-        return [ARMEMPTY(), ONSHELFSTAND(self.X)]
+        return [ARMEMPTY(), ONSHELFSTAND(self.X), ONTABLE(self.X)]
 
     def add(self):
         return [HOLDING(self.X)]
@@ -256,11 +276,11 @@ class PutdownOp(Operation):
         return [HOLDING(self.X)]
 
     def add(self):
-        return [ARMEMPTY(), ONSHELFSTAND(self.X)]
+        return [ARMEMPTY(), ONSHELFSTAND(self.X), ONTABLE(self.X)]
 
 
 def isPredicate(obj):
-    predicates = [ON, ONSHELFSTAND, TOPBOTTLE, HOLDING, ARMEMPTY]
+    predicates = [ON, ONTABLE, ONSHELFSTAND, TOPBOTTLE, HOLDING, ARMEMPTY]
     for predicate in predicates:
         if isinstance(obj, predicate):
             return True

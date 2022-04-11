@@ -5,7 +5,8 @@ from graph import Edge, Node, Graph
 import numpy as np
 import datetime
 import time
-import restack
+import restack as rs
+import restack2 as rs2
 import random
 
 LEAK_PERCENTAGE = 0.2
@@ -168,7 +169,7 @@ class Bottle:
         time.sleep(0.001)
         
     def __str__(self):
-        return f'{str(self.id)} : {self.createdAt} : {self.deliveredAt}'
+        return f'{str(self.id)}'
     
     def __repr__(self):
         return str(self.id)
@@ -204,46 +205,69 @@ class Bottle:
 class Robot:
     newid = itertools.count()
     def __init__(self):
-        self.id = next(Bottle.newid)
+        self.id = next(Robot.newid)
     
     #call restack here
     def restack(self, bottles, onStand):
         #deliverySorted = sorted(bottles, key=lambda x: x.deliveredAt) #delivery matters for the initial state
-        deliverySorted = bottles
-        createdSorted = sorted(bottles, key=lambda x : x.createdAt, reverse=True) #created matters for the goal state
+        deliverySorted = bottles #bottom to top
+        createdSorted = sorted(bottles, key=lambda x : x.createdAt, reverse=True) #created matters for the goal state #newest to oldest
         print(deliverySorted)
         print(createdSorted)
         
         on_states = []
         for i in range(len(deliverySorted)):
             try:
-                on_states.append(restack.ON(deliverySorted[i+1].id, deliverySorted[i].id))
+                on_states.append(restack.ON(deliverySorted[i+1], deliverySorted[i]))
             except IndexError:
                 continue
             
-        onstandState = restack.ONSHELFSTAND(onStand.id)
-        topBottleState = restack.TOPBOTTLE(deliverySorted[-1].id)
+        
+        topBottleState = restack.TOPBOTTLE(deliverySorted[-1])
         initialState = deepcopy(on_states)#[[on_states, onstandState, topBottleState, restack.ARMEMPTY()]]
-        initialState.append(onstandState)
+        initialState.append(restack.ONTABLE(deliverySorted[0]))
+        if onStand != None:
+            onstandState = restack.ONSHELFSTAND(onStand) 
+            initialState.append(onstandState)
+            initialState.append(restack.TOPBOTTLE(onStand))
+        
         initialState.append(topBottleState)
         initialState.append(restack.ARMEMPTY())
         print(initialState)
-        print(on_states)
+        #print(on_states)
         
         on_states = []
         
         #if the bottle on stand is empty replace it with the oldest water on the shelf
-        lenOnStand = len(createdSorted) - 1 if onStand.empty() else len(createdSorted)
-        onStand = createdSorted[-1] if onStand.empty() else onStand
+        #lenOnStand = len(createdSorted) - 1 if onStand.empty() else len(createdSorted)
+        #onStand = createdSorted[-1] if onStand.empty() else onStand
+        
+        if onStand is None: #if there are no onstand
+            onstandState = restack.ONSHELFSTAND(createdSorted[-1])
+            clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
+            lenOnStand = len(createdSorted) - 2 
+            topBottle = createdSorted[-2]
+        elif onStand.empty():
+            onstandState = restack.ONSHELFSTAND(createdSorted[-1])
+            clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
+            lenOnStand = len(createdSorted) - 2 
+            topBottle = createdSorted[-2]
+        else:
+            onstandState = restack.ONSHELFSTAND(onStand)
+            clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
+            lenOnStand = len(createdSorted)
+            topBottle = createdSorted[-1]
         
         for i in range(lenOnStand):
             try:
-                on_states.append(restack.ON(createdSorted[i+1].id, createdSorted[i].id))
+                on_states.append(restack.ON(createdSorted[i+1], createdSorted[i]))
             except IndexError:
                 continue
         goalState = deepcopy(on_states)
-        goalState.append(restack.ONSHELFSTAND(onStand.id))
-        goalState.append(restack.TOPBOTTLE(createdSorted[lenOnStand-1]))
+        goalState.append(onstandState)
+        goalState.append(clearOnStand)
+        goalState.append(restack.ONTABLE(createdSorted[0]))
+        goalState.append(restack.TOPBOTTLE(topBottle))
         goalState.append(restack.ARMEMPTY())
         
         print(goalState)
@@ -273,7 +297,7 @@ if __name__ == "__main__":
     [print(b) for b in bottles]
     
     robot = Robot()
-    robot.restack(bottles, onstand)
+    robot.restack(bottles, None)
     
     
 
