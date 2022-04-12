@@ -1,5 +1,6 @@
 import numpy as np
 import time
+from copy import deepcopy
 
 class Node:
     def __init__(self, data, level, fval):
@@ -27,7 +28,7 @@ class Node:
             of limits the return None """
         if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
             temp_puz = []
-            temp_puz = self.copy(puz)
+            temp_puz = deepcopy(puz)
             temp = temp_puz[x2][y2]
             temp_puz[x2][y2] = temp_puz[x1][y1]
             temp_puz[x1][y1] = temp
@@ -74,13 +75,13 @@ class Puzzle:
         print("Enter the 8-puzzle's beginning state\n")
         #startState = self.accept()
         startState = []
-        for input in range(0, self.n):
+        for i in range(0, self.n):
             singleVal = input().split(" ")
             startState.append(singleVal)
          
 
         print("Enter the 8-puzzle's goal state\n")        
-        goal = [1 2 3 8 _ 4 7 6 5]
+        goal = [["1","2", "3"], ["8", "_", "4"], ["7", "6", "5"]]
 
         startState = Node(startState,0,0)
         startState.fval = self.calc_f(startState,goal)
