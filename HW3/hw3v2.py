@@ -11,7 +11,10 @@ class Node:
 
     def generate_child(self):
         # Creates the children of current node through all possible 8-puzzle moves
-        x,y = self.find(self.data,'_')
+        x,y = np.where(np.asarray(self.data) == "_")
+        x,y = x[0], y[0]
+        #print(f'{x}, {y}')
+        #print(type(self.data))
         """ val_list contains position values for moving the blank space in either of
             the 4 directions [up,down,left,right] respectively. """
         val_list = [[x,y-1],[x,y+1],[x-1,y],[x+1,y]]
@@ -35,24 +38,6 @@ class Node:
             return temp_puz
         else:
             return None
-            
-
-    def copy(self,root):
-        """ Copy function to create a similar matrix of the given node"""
-        temp = []
-        for i in root:
-            t = []
-            for j in i:
-                t.append(j)
-            temp.append(t)
-        return temp    
-            
-    def find(self,puz,x):
-        """ Specifically used to find the position of the blank space """
-        for i in range(0,len(self.data)):
-            for j in range(0,len(self.data)):
-                if puz[i][j] == x:
-                    return i,j
 
 
 class Puzzle:
@@ -124,16 +109,7 @@ class Puzzle:
         gx = start.level
         return hx + gx
 
-    def accept(self):
-        """ Accepts the puzzle from the user """
-        puz = []
-        for i in range(0,self.n):
-            temp = input().split(" ")
-            puz.append(temp)
-        return puz
-
     
-
     
     
 def euclidean(mat, goal):
