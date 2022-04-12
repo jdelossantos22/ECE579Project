@@ -47,13 +47,6 @@ class Puzzle:
         self.open = []
         self.closed = []
         self.heuristic = heuristic
-    
-
-    def calc_f(self,start,goal):
-        # f(x) = h(x) + g(x)
-        hx = self.heuristic(start.data, goal)
-        gx = start.level
-        return hx + gx
 
     def process(self):
         # Take in the 8-puzzle start state.
@@ -74,6 +67,8 @@ class Puzzle:
         self.open.append(startState)
         print("\n\n")
         maxLevel = 0
+        
+        
         while True:
             cur = self.open[0]
             print("\n")
