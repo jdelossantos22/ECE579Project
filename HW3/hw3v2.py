@@ -62,12 +62,25 @@ class Puzzle:
         self.closed = []
         self.heuristic = heuristic
     
+
+    def calc_f(self,start,goal):
+        # f(x) = h(x) + g(x)
+        hx = self.heuristic(start.data, goal)
+        gx = start.level
+        return hx + gx
+
     def process(self):
         # Take in the 8-puzzle start state.
         print("Enter the 8-puzzle's beginning state\n")
-        startState = self.accept()
+        #startState = self.accept()
+        startState = []
+        for input in range(0, self.n):
+            singleVal = input().split(" ")
+            startState.append(singleVal)
+         
+
         print("Enter the 8-puzzle's goal state\n")        
-        goal = self.accept()
+        goal = [1 2 3 8 _ 4 7 6 5]
 
         startState = Node(startState,0,0)
         startState.fval = self.calc_f(startState,goal)
@@ -77,11 +90,7 @@ class Puzzle:
         maxLevel = 0
         while True:
             cur = self.open[0]
-            
-            print("")
-            print("  | ")
-            print("  | ")
-            print(" \\\'/ \n")
+            print("\n")
             for i in cur.data:
                 for j in i:
                     print(j,end=" ")
@@ -128,7 +137,7 @@ class Puzzle:
     
 def euclidean(mat, goal):
     #heuristic #1
-    #euclidena distance
+    #euclidean distance using pythagorean theorem
     cost = 0
     for i in range(len(mat)):
         for j in range(len(mat[i])):
@@ -140,7 +149,7 @@ def euclidean(mat, goal):
 
 def manhattan(mat, goal):
     #heuristic #2
-    #manhattan distance(number of tiles to goal)
+    #manhattan distance (number of individual tiles to goal)
     cost = 0
     for i in range(len(mat)):
         for j in range(len(mat[i])):
