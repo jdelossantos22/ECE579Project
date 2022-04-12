@@ -132,9 +132,9 @@ def euclidean(mat, goal):
     for i in range(len(mat)):
         for j in range(len(mat[i])):
             location_in_goal = get_loc(goal, mat[i][j]) 
-            dist_x = np.abs(i - location_in_goal[0])
-            dist_y = np.abs(j-location_in_goal[1])
-            cost += np.sqrt(dist_x^2 + dist_y^2)
+            dist_x = np.abs(float(i) - location_in_goal[0])
+            dist_y = np.abs(float(j) - location_in_goal[1])
+            cost += np.sqrt(dist_x**2 + dist_y**2)
     return cost
 
 def manhattan(mat, goal):

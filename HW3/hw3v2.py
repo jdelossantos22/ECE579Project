@@ -1,5 +1,6 @@
 import numpy as np
 import time
+
 class Node:
     def __init__(self, data, level, fval):
         # Creation of Node class with the data, level, and fval
@@ -60,21 +61,7 @@ class Puzzle:
         self.open = []
         self.closed = []
         self.heuristic = heuristic
-
-    def accept(self):
-        """ Accepts the puzzle from the user """
-        puz = []
-        for i in range(0,self.n):
-            temp = input().split(" ")
-            puz.append(temp)
-        return puz
-
-    def calc_f(self,start,goal):
-        # f(x) = h(x) + g(x)
-        hx = self.heuristic(start.data, goal)
-        gx = start.level
-        return hx + gx
-
+    
     def process(self):
         # Take in the 8-puzzle start state.
         print("Enter the 8-puzzle's beginning state\n")
@@ -120,6 +107,24 @@ class Puzzle:
 
             self.open.sort(key = lambda x:x.fval,reverse=False)
         print(f"The # of levels of the algorithm is {maxLevel}")
+        
+    def calc_f(self,start,goal):
+        # f(x) = h(x) + g(x)
+        hx = self.heuristic(start.data, goal)
+        gx = start.level
+        return hx + gx
+
+    def accept(self):
+        """ Accepts the puzzle from the user """
+        puz = []
+        for i in range(0,self.n):
+            temp = input().split(" ")
+            puz.append(temp)
+        return puz
+
+    
+
+    
     
 def euclidean(mat, goal):
     #heuristic #1
@@ -128,9 +133,9 @@ def euclidean(mat, goal):
     for i in range(len(mat)):
         for j in range(len(mat[i])):
             location_in_goal = get_loc(goal, mat[i][j]) 
-            dist_x = np.abs(i - location_in_goal[0])
-            dist_y = np.abs(j-location_in_goal[1])
-            cost += np.sqrt(dist_x^2 + dist_y^2)
+            dist_x = np.abs(float(i) - location_in_goal[0])
+            dist_y = np.abs(float(j)-location_in_goal[1])
+            cost += np.sqrt(dist_x**2 + dist_y**2)
     return cost
 
 def manhattan(mat, goal):
