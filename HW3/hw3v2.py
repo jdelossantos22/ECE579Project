@@ -1,3 +1,9 @@
+# ECE 479/579 Principle of Artificial Intelligence
+# Homework 3
+# Jero Delos Santos, Almutasim Alanazi, Kevin Grady
+# Note: The algorithm for the 8-puzzle setup and movement is adapted from the credited code:
+# https://blog.goodaudience.com/solving-8-puzzle-using-a-algorithm-7b509c331288
+
 import numpy as np
 import time
 from copy import deepcopy
@@ -13,22 +19,17 @@ class Node:
         # Creates the children of current node through all possible 8-puzzle moves
         x,y = np.where(np.asarray(self.data) == "_")
         x,y = x[0], y[0]
-        #print(f'{x}, {y}')
-        #print(type(self.data))
-        """ val_list contains position values for moving the blank space in either of
-            the 4 directions [up,down,left,right] respectively. """
         val_list = [[x,y-1],[x,y+1],[x-1,y],[x+1,y]]
         children = []
         for i in val_list:
-            child = self.shuffle(self.data,x,y,i[0],i[1])
+            child = self.checkValidMove(self.data,x,y,i[0],i[1])
             if child is not None:
                 child_node = Node(child,self.level+1,0)
                 children.append(child_node)
         return children
         
-    def shuffle(self,puz,x1,y1,x2,y2):
-        """ Move the blank space in the given direction and if the position value are out
-            of limits the return None """
+    def checkValidMove(self,puz,x1,y1,x2,y2):
+        # Checks to see that the proposed move does not move the blank off the board.
         if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
             temp_puz = []
             temp_puz = deepcopy(puz)
@@ -39,38 +40,34 @@ class Node:
         else:
             return None
 
-
 class Puzzle:
     def __init__(self,size, heuristic):
-        """ Initialize the puzzle size by the specified size,open and closed lists to empty """
         self.n = size
+        # Nodes that we have not explored yet.
         self.open = []
+        # Nodes that have children generated for already.
         self.closed = []
+        # Manhattan and Euclidean heuristics chosen here.
         self.heuristic = heuristic
 
     def process(self):
         # Take in the 8-puzzle start state.
         print("Enter the 8-puzzle's beginning state\n")
-        #startState = self.accept()
         startState = []
         for i in range(0, self.n):
             singleVal = input().split(" ")
-            startState.append(singleVal)
-         
-
-        print("Enter the 8-puzzle's goal state\n")        
+            startState.append(singleVal)    
         goal = [["1","2", "3"], ["8", "_", "4"], ["7", "6", "5"]]
-
-        startState = Node(startState,0,0)
-        startState.fval = self.calc_f(startState,goal)
-        """ Put the start node in the open list"""
+        startState = Node(startState, 0, 0)
+        startState.fval = self.calc_f(startState, goal)
+        # Our start node exists as an explored node to begin with.
         self.open.append(startState)
         print("\n\n")
         maxLevel = 0
         
-        
         while True:
             cur = self.open[0]
+            # Prints the current 8-puzzle board state to terminal.
             print("\n")
             for i in cur.data:
                 for j in i:
@@ -94,9 +91,9 @@ class Puzzle:
             # The closed list gets the current node of which we just evaluated all children at appended to it.
             self.closed.append(cur)
             del self.open[0]
-
+            # Sorts the f values in increasing order for each child node of our current node.
             self.open.sort(key = lambda x:x.fval,reverse=False)
-        print(f"The # of levels of the algorithm is {maxLevel}")
+            print(f"The # of levels of the algorithm is {maxLevel}")
         
     def calc_f(self,start,goal):
         # f(x) = h(x) + g(x)
