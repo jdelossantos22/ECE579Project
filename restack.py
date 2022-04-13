@@ -78,7 +78,7 @@ class ONSHELFSTAND(PREDICATE): #onshelfstand is technically exactly the same as 
         return hash(str(self))
 
     def get_action(self, world_state):
-        return PutdownOp(self.X)
+        return PutOnStandOp(self.X)
     
 class ONTABLE(PREDICATE):
     def __init__(self, X):
@@ -276,7 +276,30 @@ class PutdownOp(Operation):
         return [HOLDING(self.X)]
 
     def add(self):
-        return [ARMEMPTY(), ONSHELFSTAND(self.X), ONTABLE(self.X)]
+        return [ARMEMPTY(), ONTABLE(self.X)]
+
+class PutOnStandOp(Operation):
+
+    def __init__(self, X):
+        self.X = X
+
+    def __str__(self):
+        return "PUTDOWN({X})".format(X=self.X)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
+
+    def precondition(self):
+        return [HOLDING(self.X)]
+
+    def delete(self):
+        return [HOLDING(self.X)]
+
+    def add(self):
+        return [ARMEMPTY(), ONSHELFSTAND(self.X)]
 
 
 def isPredicate(obj):
@@ -288,7 +311,7 @@ def isPredicate(obj):
 
 
 def isOperation(obj):
-    operations = [StackOp, UnstackOp, PickupOp, PutdownOp]
+    operations = [StackOp, UnstackOp, PickupOp, PutdownOp, PutOnStandOp]
     for operation in operations:
         if isinstance(obj, operation):
             return True

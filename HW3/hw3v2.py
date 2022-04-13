@@ -93,7 +93,7 @@ class Puzzle:
             del self.open[0]
             # Sorts the f values in increasing order for each child node of our current node.
             self.open.sort(key = lambda x:x.fval,reverse=False)
-            print(f"The # of levels of the algorithm is {maxLevel}")
+        print(f"The # of levels of the algorithm is {maxLevel}")
         
     def calc_f(self,start,goal):
         # f(x) = h(x) + g(x)

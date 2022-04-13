@@ -5,8 +5,7 @@ from graph import Edge, Node, Graph
 import numpy as np
 import datetime
 import time
-import restack as rs
-import restack2 as rs2
+import restack 
 import random
 
 LEAK_PERCENTAGE = 0.2
@@ -173,6 +172,8 @@ class Bottle:
     
     def __repr__(self):
         return str(self.id)
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
     
     def getId(self):
         return self.id
