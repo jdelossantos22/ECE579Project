@@ -148,8 +148,10 @@ class HOLDING(PREDICATE):
     def get_action(self, world_state):
         X = self.X
         # If block is on table, pick up
-        if ONSHELFSTAND(X) in world_state:
+        if ONTABLE(X) in world_state:
             return PickupOp(X)
+        elif ONSHELFSTAND(X) in world_state:
+            return PickUpStandOp(X)
         # If block is on another block, unstack
         else:
             for predicate in world_state:
@@ -246,10 +248,10 @@ class PickupOp(Operation):
         return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
 
     def precondition(self):
-        return [TOPBOTTLE(self.X), ONSHELFSTAND(self.X), ONTABLE(self.X), ARMEMPTY()]
+        return [TOPBOTTLE(self.X), ONTABLE(self.X), ARMEMPTY()]
 
     def delete(self):
-        return [ARMEMPTY(), ONSHELFSTAND(self.X), ONTABLE(self.X)]
+        return [ARMEMPTY(), ONTABLE(self.X)]
 
     def add(self):
         return [HOLDING(self.X)]
@@ -284,7 +286,7 @@ class PutOnStandOp(Operation):
         self.X = X
 
     def __str__(self):
-        return "PUTDOWN({X})".format(X=self.X)
+        return "PUTONSTAND({X})".format(X=self.X)
 
     def __repr__(self):
         return self.__str__()
@@ -300,7 +302,28 @@ class PutOnStandOp(Operation):
 
     def add(self):
         return [ARMEMPTY(), ONSHELFSTAND(self.X)]
+    
+class PickUpStandOp(Operation):
+    def __init__(self, X):
+        self.X = X
 
+    def __str__(self):
+        return "PICKUPSTAND({X})".format(X=self.X)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
+
+    def precondition(self):
+        return [TOPBOTTLE(self.X), ONSHELFSTAND(self.X), ARMEMPTY()]
+
+    def delete(self):
+        return [ARMEMPTY(), ONSHELFSTAND(self.X)]
+
+    def add(self):
+        return [HOLDING(self.X)]
 
 def isPredicate(obj):
     predicates = [ON, ONTABLE, ONSHELFSTAND, TOPBOTTLE, HOLDING, ARMEMPTY]
@@ -311,7 +334,7 @@ def isPredicate(obj):
 
 
 def isOperation(obj):
-    operations = [StackOp, UnstackOp, PickupOp, PutdownOp, PutOnStandOp]
+    operations = [StackOp, UnstackOp, PickupOp, PutdownOp, PutOnStandOp, PickUpStandOp]
     for operation in operations:
         if isinstance(obj, operation):
             return True
