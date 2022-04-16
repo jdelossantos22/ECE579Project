@@ -209,7 +209,7 @@ class Robot:
         self.id = next(Robot.newid)
     
     #call restack here
-    def restack(self, bottles, onStand):
+    def restack(self, bottles, onStand, emptyShelf=[]):
         #deliverySorted = sorted(bottles, key=lambda x: x.deliveredAt) #delivery matters for the initial state
         deliverySorted = bottles #bottom to top
         createdSorted = sorted(bottles, key=lambda x : x.createdAt, reverse=True) #created matters for the goal state #newest to oldest
@@ -232,6 +232,16 @@ class Robot:
             initialState.append(onstandState)
             initialState.append(restack.TOPBOTTLE(onStand))
         
+        #empty shelf initial state
+        if len(emptyShelf) > 0:
+            for i in range(len(emptyShelf)):
+                try:
+                    initialState.append(restack.ON(emptyShelf[i+1], emptyShelf[i]))
+                except IndexError:
+                    continue
+            initialState.append(restack.ONTABLE(emptyShelf[0]))
+            initialState.append(restack.TOPBOTTLE(emptyShelf[-1]))
+        
         initialState.append(topBottleState)
         initialState.append(restack.ARMEMPTY())
         print(initialState)
@@ -253,6 +263,7 @@ class Robot:
             clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
             lenOnStand = len(createdSorted) - 2 
             topBottle = createdSorted[-2]
+            emptyShelf.append(onStand)
         else:
             onstandState = restack.ONSHELFSTAND(onStand)
             clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
@@ -264,12 +275,23 @@ class Robot:
                 on_states.append(restack.ON(createdSorted[i+1], createdSorted[i]))
             except IndexError:
                 continue
+            
         goalState = deepcopy(on_states)
         goalState.append(onstandState)
         goalState.append(clearOnStand)
         goalState.append(restack.ONTABLE(createdSorted[0]))
         goalState.append(restack.TOPBOTTLE(topBottle))
         goalState.append(restack.ARMEMPTY())
+        
+        
+        if len(emptyShelf) > 0:
+            for i in range(len(emptyShelf)):
+                try:
+                    initialState.append(restack.ON(emptyShelf[i+1], emptyShelf[i]))
+                except IndexError:
+                    continue
+            initialState.append(restack.ONTABLE(emptyShelf[0]))
+            initialState.append(restack.TOPBOTTLE(emptyShelf[-1]))
         
         print(goalState)
         
