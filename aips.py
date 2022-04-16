@@ -227,7 +227,8 @@ class Robot:
         topBottleState = restack.TOPBOTTLE(deliverySorted[-1])
         initialState = deepcopy(on_states)#[[on_states, onstandState, topBottleState, restack.ARMEMPTY()]]
         initialState.append(restack.ONTABLE(deliverySorted[0]))
-        if onStand != None:
+        
+        if isinstance(onStand, Bottle):
             onstandState = restack.ONSHELFSTAND(onStand) 
             initialState.append(onstandState)
             initialState.append(restack.TOPBOTTLE(onStand))
@@ -253,7 +254,7 @@ class Robot:
         #lenOnStand = len(createdSorted) - 1 if onStand.empty() else len(createdSorted)
         #onStand = createdSorted[-1] if onStand.empty() else onStand
         
-        if onStand is None: #if there are no onstand
+        if not isinstance(onStand, Bottle): #if there are no onstand
             onstandState = restack.ONSHELFSTAND(createdSorted[-1])
             clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
             lenOnStand = len(createdSorted) - 2 
@@ -287,11 +288,11 @@ class Robot:
         if len(emptyShelf) > 0:
             for i in range(len(emptyShelf)):
                 try:
-                    initialState.append(restack.ON(emptyShelf[i+1], emptyShelf[i]))
+                    goalState.append(restack.ON(emptyShelf[i+1], emptyShelf[i]))
                 except IndexError:
                     continue
-            initialState.append(restack.ONTABLE(emptyShelf[0]))
-            initialState.append(restack.TOPBOTTLE(emptyShelf[-1]))
+            goalState.append(restack.ONTABLE(emptyShelf[0]))
+            goalState.append(restack.TOPBOTTLE(emptyShelf[-1]))
         
         print(goalState)
         
@@ -313,14 +314,19 @@ class Robot:
 if __name__ == "__main__":
     onstand = Bottle()
     onstand.delivered()
+    onstand.setCurVolume(0)
+    onstand.empty()
     bottles = []
     for i in range(3):
         bottles.append(Bottle())
     [b.delivered() for b in bottles]    
     [print(b) for b in bottles]
     
+    emptyBottle = Bottle()
+    emptyBottle.setCurVolume(0)
+    
     robot = Robot()
-    robot.restack(bottles, None)
+    robot.restack(bottles, onstand, [emptyBottle])
     
     
 
