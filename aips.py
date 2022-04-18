@@ -83,6 +83,9 @@ class Customer(Node):
         if self.delivery:
             if self.robot.restack(): #if restacking is successful
                 self.delivery = False
+                
+    def deliveryArrived(self):
+        self.delivery = True
             
         
     def checkLeak(self):

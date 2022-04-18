@@ -2,18 +2,19 @@ from aips import *
 from graph import Graph, Node, Edge
 from restack import *
 import time
-import simpy
 import random
 import itertools
 import string
 
 class Simulation:
-    def __init__(self, numCustomers):
+    def __init__(self, numCustomers=0):
         #needs customer(s)
         #needs edges(distance for each customer)
         print(f"This simulation will have {numCustomers} customers.")
         self.numCustomers = int(numCustomers)
         return
+    
+    
     def process(self):
         #input from user
         self.dispatcher = Dispatcher()
@@ -67,6 +68,7 @@ class Simulation:
                       {"ON" if status else "OFF"}')
                 #Step #4 call restack on every iteration of while loop
                 c.checkDelivered() #check if restack is needed
+                c.robot.restack(c.fullShelf.bottles, c.stand.bottle, c.emptyShelf.bottles) #restack anyway
                 
             time.sleep(1)
         
