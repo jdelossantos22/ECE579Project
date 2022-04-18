@@ -36,17 +36,18 @@
 <NameWindow>
     name:"name"
 
-    GridLayout:
+    FloatLayout:
         cols:1
-        
-        GridLayout:
-            id:body
-            cols:2
-            size: root.width,root.height
-            font_size: (root.width**2 + root.height**2) / 14**4
+        ScrollView:
+            FloatLayout:
+                id:body
+                cols:2
+                size: root.width,root.height
+                font_size: (root.width**2 + root.height**2) / 14**4
+
     
     Button:
-        pos_hint:{"x":0.3,"y":0.25}
+        pos_hint:{"x":0.3,"y":0.05}
         size_hint: 0.4, 0.1
         font_size: (root.width**2 + root.height**2) / 17**4
         text: "Submit"

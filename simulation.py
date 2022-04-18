@@ -12,8 +12,16 @@ class Simulation:
         #needs edges(distance for each customer)
         print(f"This simulation will have {numCustomers} customers.")
         self.numCustomers = int(numCustomers)
+        self.customers = []
+        self.graph = Graph()
+        self.dispatcher = Dispatcher()
+        self.graph.add_node(self.dispatcher)
+        
         return
     
+    def add_customer(self, customer):
+        self.customers.append(customer)
+        self.graph.add_node(customer)
     
     def process(self):
         #input from user

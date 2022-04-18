@@ -19,7 +19,7 @@ import simulation
 from graph import Graph,Node, Edge
 
 kivy.require("2.1.0")
-SIMULAION = simulation.Simulation()
+SIMULATION = simulation.Simulation()
 
 class NumCustomersWindow(Screen):
     #first window
@@ -30,7 +30,8 @@ class NumCustomersWindow(Screen):
         if self.numCustomers.text != "":
             try:
                 num = int(self.numCustomers.text)
-                SIMULAION = simulation.Simulation(num)
+                global SIMULATION
+                SIMULATION = simulation.Simulation(num)
                 self.reset()
                 sm.current = "name"
             except:
@@ -48,22 +49,84 @@ class NameWindow(Screen):
     def on_enter(self, *args):
         body = self.ids.body
         #self.add_widget(Label(text="Hello"))
-        self.ids.body.add_widget(Label(text="Hello"))
-        
-        for i in range(SIMULAION.numCustomers):
-            self.ids.body.add_widget(Label(text="Hello2"))
-            width,height = Window.size
-            self.nameInput = TextInput(  
-                font_size=42,
-                multiline=False)
-            self.ids.body.add_widget(self.nameInput)
-        pass
+        #self.ids.body.add_widget(Label(text="Hello"))
+        global SIMULATION
+        print(SIMULATION.numCustomers)
+        self.nameInput = []
+        for i in range(SIMULATION.numCustomers):
+            self.ids.body.add_widget(Label(text=f"Name of customer {i+1}",
+                font_size=(self.width**2 + self.height**2) / 14**4,
+                size_hint=(0.5,0.12),
+                pos_hint={"x":0,"top":0.8 - i*0.13}
+                
+                                     
+            ))
+            #width,height = Window.size
+            self.nameInput.append(TextInput(  
+                font_size=(self.width**2 + self.height**2) / 14**4,
+                size_hint=(0.4,0.12),
+                pos_hint={"x":0.5,"top":0.8 - i*0.13},
+                multiline=False))
+            self.ids.body.add_widget(self.nameInput[i])
+    
+    def submit(self):
+        successful = True
+        global SIMULATION
+        for w in self.nameInput:
+            if w.text != "":
+                
+                c = aips.Customer(w.text)
+                SIMULATION.add_customer(c)
+            else:
+                successful = False
+                invalidForm()
+        if successful:
+            print(SIMULATION.customers)
+            self.reset()
+            sm.current = "distance"
+                
+    def reset(self):
+        for w in self.nameInput:
+            w.text = ""
 
 class DistanceWindow(Screen):
     #third window
     #asks user for the distances of the customers
     
-    pass
+    def on_enter(self, *args):
+        global SIMULATION
+        numComb = itertools.combinations(SIMULATION.customers,2)
+        self.distInput = []
+        for i in range(len(SIMULATION.customers)):
+            self.ids.body.add_widget(Label(text=f"Distance between {SIMULATION.customers[i]} and {SIMULATION.dispatcher}",
+                font_size=(self.width**2 + self.height**2) / 14**4,
+                size_hint=(0.5,0.12),
+                pos_hint={"x":0,"top":0.8 - i*0.13}
+            ))
+            #width,height = Window.size
+            self.distInput.append(TextInput(  
+                font_size=(self.width**2 + self.height**2) / 14**4,
+                size_hint=(0.4,0.12),
+                pos_hint={"x":0.5,"top":0.8 - i*0.13},
+                multiline=False))
+            self.ids.body.add_widget(self.distInput[i])
+            
+        for c in list(numComb):
+            cust1 = c[0]
+            cust2 = c[1]
+            self.ids.body.add_widget(Label(text=f"Distance between {cust1} and {cust2}",
+                font_size=(self.width**2 + self.height**2) / 14**4,
+                size_hint=(0.5,0.12),
+                pos_hint={"x":0,"top":0.8 - i*0.13}
+            ))
+            #width,height = Window.size
+            self.distInput.append(TextInput(  
+                font_size=(self.width**2 + self.height**2) / 14**4,
+                size_hint=(0.4,0.12),
+                pos_hint={"x":0.5,"top":0.8 - i*0.13},
+                multiline=False))
+            self.ids.body.add_widget(self.distInput[SIMULATION.numCustomers +i])
+        
 
 class SimWindow(Screen):
     #fourth window
