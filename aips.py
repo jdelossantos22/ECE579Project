@@ -68,7 +68,6 @@ class Customer(Node):
         self.delivery = True #there has been a delivery used to call robot restack
         
         
-        
     def checkShelves(self):
         if self.fullShelf.curBottles <= 1:
             self.replenish = True

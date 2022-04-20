@@ -19,6 +19,9 @@ class Simulation:
         
         return
     
+    def __str__(self):
+        pass
+    
     def add_customer(self, customer):
         self.customers.append(customer)
         self.graph.add_node(customer)

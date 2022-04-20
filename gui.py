@@ -1,7 +1,3 @@
-import itertools
-import random
-import string
-
 import kivy
 from kivy.app import App
 from kivy.lang import Builder
@@ -13,13 +9,23 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.core.window import Window
+#from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+
+import itertools
+import random
+import string
+import networkx as nx
+#import matplotlib.pyplot as plt
+
 
 import aips
 import simulation
 from graph import Graph,Node, Edge
 
+
 kivy.require("2.1.0")
 SIMULATION = simulation.Simulation()
+G = nx.DiGraph()
 
 class NumCustomersWindow(Screen):
     #first window
@@ -95,49 +101,101 @@ class DistanceWindow(Screen):
     
     def on_enter(self, *args):
         global SIMULATION
-        numComb = itertools.combinations(SIMULATION.customers,2)
+        
+        
+        #print(f'numComb = {list(numComb)}')
         self.distInput = []
         for i in range(len(SIMULATION.customers)):
             self.ids.body.add_widget(Label(text=f"Distance between {SIMULATION.customers[i]} and {SIMULATION.dispatcher}",
                 font_size=(self.width**2 + self.height**2) / 14**4,
-                size_hint=(0.5,0.12),
-                pos_hint={"x":0,"top":0.8 - i*0.13}
+                size_hint=(0.5,0.1),
+                pos_hint={"x":0,"top":0.9 - i*0.11}
             ))
             #width,height = Window.size
             self.distInput.append(TextInput(  
                 font_size=(self.width**2 + self.height**2) / 14**4,
-                size_hint=(0.4,0.12),
-                pos_hint={"x":0.5,"top":0.8 - i*0.13},
-                multiline=False))
+                size_hint=(0.4,0.1),
+                pos_hint={"x":0.5,"top":0.9 - i*0.11},
+                multiline=False,
+                input_filter="float"))
             self.ids.body.add_widget(self.distInput[i])
-            
-        for c in list(numComb):
-            cust1 = c[0]
-            cust2 = c[1]
+        print(f"i: {i}")
+        numComb = itertools.combinations(SIMULATION.customers,2)
+        numComb = list(numComb)
+        self.nodeCombs = numComb
+        
+        for i in range(len(numComb)):
+            print(list(numComb))
+            cust1 = numComb[i][0]
+            cust2 = numComb[i][1]
             self.ids.body.add_widget(Label(text=f"Distance between {cust1} and {cust2}",
                 font_size=(self.width**2 + self.height**2) / 14**4,
-                size_hint=(0.5,0.12),
-                pos_hint={"x":0,"top":0.8 - i*0.13}
+                size_hint=(0.5,0.1),
+                pos_hint={"x":0,"top":0.9 - (SIMULATION.numCustomers+i)*0.11}
             ))
             #width,height = Window.size
             self.distInput.append(TextInput(  
                 font_size=(self.width**2 + self.height**2) / 14**4,
-                size_hint=(0.4,0.12),
-                pos_hint={"x":0.5,"top":0.8 - i*0.13},
-                multiline=False))
-            self.ids.body.add_widget(self.distInput[SIMULATION.numCustomers +i])
+                size_hint=(0.4,0.1),
+                pos_hint={"x":0.5,"top":0.9 - (SIMULATION.numCustomers+i)*0.11},
+                multiline=False,
+                input_filter="float"))
+            print(f'distInput={len(self.distInput)}')
+            print(f'{SIMULATION.numCustomers + i}')
+            self.ids.body.add_widget(self.distInput[SIMULATION.numCustomers + i])
+            
+    
+    def submit(self):
+        successful = True
+        global SIMULATION
+        #global G
         
+        for i in range(len(self.distInput)):
+            if self.distInput[i].text != "":
+                try:
+                    dist = float(self.distInput[i].text)
+                    print(dist)
+                    if i < SIMULATION.numCustomers:
+                        SIMULATION.graph.add_edge(SIMULATION.dispatcher,SIMULATION.customers[i],float(dist))
+                        #G.add_edge(SIMULATION.dispatcher,SIMULATION.customers[i], weight=float(dist))
+                    else:
+                        j = i - SIMULATION.numCustomers
+                        combination = self.nodeCombs[j]
+                        SIMULATION.graph.add_edge(combination[0], combination[1], float(dist))
+                        #G.add_edge(combination[0], combination[1], weight=float(dist))
+                        
+                except:
+                    successful = False
+                    invalidForm()
+            else:
+                successful = False
+                invalidForm()
+        if successful:
+            self.reset()
+            sm.current = "simulation"
+    
+    def reset(self):
+        for w in self.distInput:
+            w.text = ""
+                
 
 class SimWindow(Screen):
     #fourth window
     #main window
     #where the simulation will run
-    pass
+    def on_enter(self, *args):
+        self.ids.content.text = "Hello World"
+        
+    def stop(self):
+        self.ids.content.text = ""
+    
+    def start(self):
+        pass
+
         
 class WindowManager(ScreenManager):
+    
     pass
-
-
 
 def invalidForm():
     pop = Popup(title='Invalid Form',

@@ -38,12 +38,11 @@
 
     FloatLayout:
         cols:1
-        ScrollView:
-            FloatLayout:
-                id:body
-                cols:2
-                size: root.width,root.height
-                font_size: (root.width**2 + root.height**2) / 14**4
+        FloatLayout:
+            id:body
+            cols:2
+            size: root.width,root.height
+            font_size: (root.width**2 + root.height**2) / 14**4
 
     
     Button:
@@ -55,4 +54,55 @@
             root.manager.transition.direction = "left"
             root.submit()
 
-            
+<DistanceWindow>
+    name:"distance"
+    FloatLayout:
+        cols:1
+        FloatLayout:
+            id:body
+            cols:2
+            size: root.width,root.height
+            font_size: (root.width**2 + root.height**2) / 14**4
+    
+    Button:
+        pos_hint:{"x":0.3,"y":0.05}
+        size_hint: 0.4, 0.1
+        font_size: (root.width**2 + root.height**2) / 17**4
+        text: "Submit"
+        on_release:
+            root.manager.transition.direction = "left"
+            root.submit()
+
+<SimWindow>
+    name:"simulation"
+    content:content
+
+    BoxLayout:
+        cols:1
+        BoxLayout:
+            id:body
+            size_hint_y:0.8
+            pos_hint: {"top":1}
+
+            TextInput:
+                id: content
+                size_hint_y:0.8
+                pos_hint: {"top":1}
+                font_size: (root.width**2 + root.height**2) / 17**4
+    BoxLayout:
+        cols:2       
+        Button:
+            size_hint_y:0.2
+            font_size: (root.width**2 + root.height**2) / 17**4
+            text: "Stop Simulation"
+            on_release:
+                root.manager.transition.direction = "left"
+                root.stop()
+
+        Button:
+            size_hint_y:0.2
+            font_size: (root.width**2 + root.height**2) / 17**4
+            text: "Start Simulation"
+            on_release:
+                root.manager.transition.direction = "left"
+                root.start()

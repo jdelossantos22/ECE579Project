@@ -121,4 +121,20 @@ class AIDApp(App):
 
 if __name__ == "__main__":
     AIDApp().run()
-    
+'''
+global G
+        val_map = {'A': 1.0,
+                   'D': 0.5714285714285714,
+                              'H': 0.0}
+        values = [val_map.get(node, 0.45) for node in G.nodes()]
+        edge_labels=dict([((u,v,),d['weight'])
+                 for u,v,d in G.edges(data=True)])
+        red_edges = []
+        edge_colors = ['black' if not edge in red_edges else 'red' for edge in G.edges()]
+        pos=nx.spring_layout(G)
+        nx.draw_networkx_edge_labels(G,pos,edge_labels=edge_labels)
+        nx.draw(G,pos, node_color = values, node_size=1500,edge_color=edge_colors,edge_cmap=plt.cm.Reds)
+        
+        box = self.ids.body
+        box.add_widget()
+        '''
