@@ -65,11 +65,15 @@ class Simulation:
         
     def run(self):
         #pseudo-code for the states
+        #generator 
+        #yield 
+        
         while(True):
+            output = ""
             num = self.dispatcher.checkCustomersReplenish()
-            if (num > 0):
+            if (num > 0): #we need to deliver water bottles
                 self.dispatcher.dispatch()
-            
+                #output += self.dispatcher.dispatch()
             
             
             for c in self.customers:
@@ -77,11 +81,13 @@ class Simulation:
                 temperature, status  = c.chilledStand.checkTemp()
                 print(f'{str(c)} chilled stand is at {temperature} °F and the cooler is \
                       {"ON" if status else "OFF"}')
+                #output += ^^^
                 #Step #4 call restack on every iteration of while loop
                 c.checkDelivered() #check if restack is needed
                 c.robot.restack(c.fullShelf.bottles, c.stand.bottle, c.emptyShelf.bottles) #restack anyway
                 
             time.sleep(1)
+            #yield output
         
         
     

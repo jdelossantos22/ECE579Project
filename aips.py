@@ -262,11 +262,11 @@ class Robot:
             lenOnStand = len(createdSorted) - 2 
             topBottle = createdSorted[-2]
         elif onStand.empty():
-            onstandState = restack.ONSHELFSTAND(createdSorted[-1])
-            clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
+            onstandState = restack.ONSHELFSTAND(createdSorted[-1]) # on stand should be the oldest bottle in the full shelf
+            clearOnStand = restack.TOPBOTTLE(createdSorted[-1]) 
             lenOnStand = len(createdSorted) - 2 
             topBottle = createdSorted[-2]
-            emptyShelf.append(onStand)
+            emptyShelf.append(onStand) #emptyshelf needs to be added
         else:
             onstandState = restack.ONSHELFSTAND(onStand)
             clearOnStand = restack.TOPBOTTLE(createdSorted[-1])

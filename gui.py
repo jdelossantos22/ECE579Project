@@ -183,8 +183,17 @@ class SimWindow(Screen):
     #fourth window
     #main window
     #where the simulation will run
+    simCont = True
     def on_enter(self, *args):
+        global SIMULATION
         self.ids.content.text = "Hello World"
+        '''
+        sim_gen = SIMULATION.run()
+        while self.simCont:
+            self.ids.content.text += sim_gen.next()
+            '''
+
+        
         
     def stop(self):
         self.ids.content.text = ""
