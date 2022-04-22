@@ -69,8 +69,17 @@ class Simulation:
         #generator 
         #yield 
         i_count = 0
-        
+        start_time = time.time()
+        next_time = start_time + 5
         while(True):
+            sim_time = time.time() - start_time
+            if sim_time >= 5:
+                start_time = time.time()
+                next_time = start_time + 5
+                choice = input("Continue Simulation? (y/n): ")
+                if choice.lower() != "y":
+                    break
+                
             i_count += 1
             
             output = ""
