@@ -68,7 +68,7 @@ class Customer(Node):
         
         # Assuming only the bottle currently in the water stand can have a leak
         # ie, customer can only have 1 leak at a time, so not a bottle attribute
-        self.leak = false
+        self.leak = False
         
         self.replenish = True
         self.replenishNum = 3 #number of bottles to be replenished?
@@ -95,6 +95,33 @@ class Customer(Node):
         
     def checkLeak(self):
         return self.leak
+    
+    def generateLeak(self, percentage):
+        bottleList = self.fullShelf.bottles
+        bottleList.append(self.chilledStand.bottle)
+        
+        for bottle in bottleList:
+            chance = random.random()
+            if chance < percentage:
+                bottle.leakBool = True
+    
+    def consumeWater(self):
+        self.chilledStand.bottle.decrementVol(random.random()*self.chilledStand.bottle.capacity)
+        self.chilledStand.bottle.lastCheckedVol = self.chilledStand.bottle.curVolume
+        
+    def detectLeak(self):
+        bottleList = self.fullShelf.bottles
+        bottleList.append(self.chilledStand.bottle)
+        #leak = False
+        output = ""
+        for bottle in bottleList:
+            if bottle.curVolume != bottle.lastCheckedVol:
+                bottle.leakBool = True
+                output += f"{self.name}: Bottle {bottle.id} has a leak\n"
+                
+        print(output)
+        return output
+                
     
         
 class Shelf:
@@ -138,6 +165,7 @@ class Stand:
 
 class Chilled_Stand(Stand):
     def __init__(self):
+        super().__init__()
         self.cooler = False
         self.threshold = 42.0
         self.dt = 2
@@ -173,6 +201,7 @@ class Bottle:
         self.createdAt = datetime.datetime.utcnow()
         self.deliveredAt = None
         self.leakBool = False
+        self.lastCheckedVol = curVolume
         time.sleep(0.001)
         
     def __str__(self):

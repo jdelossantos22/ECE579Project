@@ -85,19 +85,15 @@ class Simulation:
                 # Each customer gets a random # between 1 and 100 for event triggering
                 rand = random.randint(1, 100)
 
-                # 10% chance each time of firing event
-                if (rand < 10):
-                    print("A leak has been triggered.")
-                    self.leak = true
+                
 
                 # Every fifth iteration, reduce curVolume by 0.1, 0.2, or 0.3 to simulate users drinking
                 if (i_count % 5 == 0):   
-                    if (rand < 33):
-                        # self.curVolume -= 0.1
-                    elif (rand > 33 and rand < 66):
-                        # self.curVolume -= 0.2
-                    elif (rand < 66):
-                        # self.curVolume -= 0.3
+                    c.consumeWater()
+                
+                # 10% chance each time of firing event 
+                c.generateLeak(0.1) #randome chance included in the code
+                c.detectLeak() #check for leak in all the bottles in the house
                 
                 
                 #Step #3.b Check dispenser temperature
@@ -107,7 +103,7 @@ class Simulation:
                 #output += ^^^
                 #Step #4 call restack on every iteration of while loop
                 c.checkDelivered() #check if restack is needed
-                c.robot.restack(c.fullShelf.bottles, c.stand.bottle, c.emptyShelf.bottles) #restack anyway
+                c.robot.restack(c.fullShelf.bottles, c.chilledStand.bottle, c.emptyShelf.bottles) #restack anyway
                 
             time.sleep(1)
             #yield output
