@@ -22,6 +22,8 @@ class Dispatcher(Node):
     def dispatch(self):
         #numBottles is number of bottles to be dispatched
         #instantiate the bottles
+        
+        # Drink amount varies from 0.1 to 0.3 whenever the i_count mod 5 == 0
         numBottles = sum([c.replenishNum for c in self.needsDispatch])
         self.bottles = [Bottle(curVolume=4.0) for i in range(numBottles)]
         #call TSP method on customers list to be replenished
@@ -38,17 +40,18 @@ class Dispatcher(Node):
             print(f'{c.replenishNum} bottles has been delivered to {c}')
         
         
-    def checkCustomersReplenish(self):
-        print("Checking which customers needs to be replenished")
+    def checkCustomersReplenishLeak(self):
+        print("Checking which customers needs to be replenished or have a leak")
         self.needsDispatch = []
         
         for c in self.customers:
-            if c.checkShelves() == True:
+            if c.checkShelves() == True or c.checkLeak() == True:
                 #print(type(c))
                 self.needsDispatch.append(c)
                 
         #print(self.needsDispatch)
         return len(self.needsDispatch)
+   
     
         
 
@@ -62,6 +65,10 @@ class Customer(Node):
         self.stand = Stand()
         self.chilledStand = Chilled_Stand()
         self.robot = Robot()
+        
+        # Assuming only the bottle currently in the water stand can have a leak
+        # ie, customer can only have 1 leak at a time, so not a bottle attribute
+        self.leak = false
         
         self.replenish = True
         self.replenishNum = 3 #number of bottles to be replenished?
@@ -85,10 +92,9 @@ class Customer(Node):
                 
     def deliveryArrived(self):
         self.delivery = True
-            
         
     def checkLeak(self):
-        pass
+        return self.leak
     
         
 class Shelf:
