@@ -43,7 +43,7 @@ class Simulation:
         #initialize
         cCombination = itertools.combinations(self.customers,2)
         
-        
+        # Input all distances from customer to dispatch point
         for c in self.customers:
             dist = input(f"Please enter distance between {str(c)} and {str(self.dispatcher)}: ")
             dist = random.uniform(1, 50) if dist == "" else dist
@@ -51,6 +51,7 @@ class Simulation:
             self.graph.add_edge(self.dispatcher,c,float(dist))
             
         #print(list(cCombination))
+        # Input all distances between each customer
         for c in list(cCombination):
             cust1 = c[0]
             cust2 = c[1]
@@ -67,16 +68,38 @@ class Simulation:
         #pseudo-code for the states
         #generator 
         #yield 
+        i_count = 0
         
         while(True):
+            i_count += 1
+            
             output = ""
-            num = self.dispatcher.checkCustomersReplenish()
+            # create stops for customers that are out or have a leak
+            num = self.dispatcher.checkCustomersReplenishLeak()
             if (num > 0): #we need to deliver water bottles
                 self.dispatcher.dispatch()
                 #output += self.dispatcher.dispatch()
             
             
             for c in self.customers:
+                # Each customer gets a random # between 1 and 100 for event triggering
+                rand = random.randint(1, 100)
+
+                # 10% chance each time of firing event
+                if (rand < 10):
+                    print("A leak has been triggered.")
+                    self.leak = true
+
+                # Every fifth iteration, reduce curVolume by 0.1, 0.2, or 0.3 to simulate users drinking
+                if (i_count % 5 == 0):   
+                    if (rand < 33):
+                        # self.curVolume -= 0.1
+                    elif (rand > 33 and rand < 66):
+                        # self.curVolume -= 0.2
+                    elif (rand < 66):
+                        # self.curVolume -= 0.3
+                
+                
                 #Step #3.b Check dispenser temperature
                 temperature, status  = c.chilledStand.checkTemp()
                 print(f'{str(c)} chilled stand is at {temperature} °F and the cooler is \
