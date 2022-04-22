@@ -74,7 +74,7 @@ class Graph:
         (Optimal_PathLength,Best_Route) = tsp(tsp_dist)
         print("The shortest possible length distance is : ", Optimal_PathLength)
         print("The optimal path is : ", end="")
-        [print(self.nodes[i], end=" -> ") for i in Best_Route[:-1]]
+        [print(newNodes[i], end=" -> ") for i in Best_Route[:-1]]
         print(self.nodes[Best_Route[-1]])
-        return (Optimal_PathLength,[self.nodes[i] for i in Best_Route])
+        return (Optimal_PathLength,[newNodes[i] for i in Best_Route])
         

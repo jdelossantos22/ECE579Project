@@ -102,7 +102,7 @@ class Simulation:
                     c.consumeWater()
                 
                 # 10% chance each time of firing event 
-                c.generateLeak(0.9) #randome chance included in the code
+                c.generateLeak(0.1) #randome chance included in the code
 
                 #output += ^^^
                 

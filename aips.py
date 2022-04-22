@@ -36,6 +36,7 @@ class Dispatcher(Node):
         print(temp)
         (Optimal_PathLength,Best_Route) = self.graph.tsp_arr(self.needsDispatch)
         #print(type(Best_Route))
+        print(Best_Route)
         Route_Customers = Best_Route[1:-1]
         temp = "Dispatcher is starting their route\n"
         self.output += temp
@@ -137,6 +138,8 @@ class Customer(Node):
     
     def checkStand(self):
         if not isinstance(self.chilledStand.bottle, Bottle) or self.chilledStand.bottle.empty():
+            temp = self.chilledStand.bottle
+            print(f'Bottle {temp} is empty and needs to be replaced')
             restack_out = self.robot.restack(self.fullShelf.bottles, self.chilledStand.bottle, self.emptyShelf.bottles)
             if restack_out: #if restacking is successful
                 #update shelves
@@ -144,6 +147,7 @@ class Customer(Node):
                 self.emptyShelf.bottles = restack_out["emptyShelf"]
                 self.chilledStand.bottle = restack_out["onStand"][0]
                 self.delivery = False
+            print(f'Bottle {self.chilledStand.bottle} has been put on the stand')
                 
     def deliveryArrived(self):
         self.delivery = True
@@ -217,6 +221,8 @@ class Stand:
     
     def drink(self):
         vol = random.random() * self.bottle.capacity
+        if vol > self.bottle.curVolume:
+            vol = self.bottle.curVolume
         self.bottle.decrementVol(vol)
         #self.chilledStand.bottle.lastCheckedVol = self.chilledStand.bottle.curVolume
         self.bottle.lastCheckedVol = self.bottle.curVolume
@@ -294,7 +300,7 @@ class Bottle:
         self.deliveredAt = datetime.datetime.utcnow()
         time.sleep(0.001)
     def empty(self):
-        return True if self.curVolume == 0.0 else False
+        return True if self.curVolume <= 0.0 else False
     def leak(self):
         self.leakBool = True if random.random() < LEAK_PERCENTAGE else False
         return self.leakBool
