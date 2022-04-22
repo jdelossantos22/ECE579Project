@@ -82,28 +82,30 @@ class Simulation:
             
             
             for c in self.customers:
+                #check all variables3
+                #Step #4 call restack on every iteration of while loop
+                c.checkDelivered() #check if restack is needed
+                #c.robot.restack(c.fullShelf.bottles, c.chilledStand.bottle, c.emptyShelf.bottles) #restack anyway
+                c.checkStand() #check stand if bottle is empty
+                c.detectLeak() #check for leak in all the bottles in the house
                 # Each customer gets a random # between 1 and 100 for event triggering
-                rand = random.randint(1, 100)
+                #Step #3.b Check dispenser temperature
+                temperature, status  = c.chilledStand.checkTemp()
+                print(f'{str(c)} chilled stand is at {temperature} °F and the cooler is \
+                      {"ON" if status else "OFF"}')
 
+                #########################################################
                 
-
+                #generate events
                 # Every fifth iteration, reduce curVolume by 0.1, 0.2, or 0.3 to simulate users drinking
                 if (i_count % 5 == 0):   
                     c.consumeWater()
                 
                 # 10% chance each time of firing event 
-                c.generateLeak(0.1) #randome chance included in the code
-                c.detectLeak() #check for leak in all the bottles in the house
-                
-                
-                #Step #3.b Check dispenser temperature
-                temperature, status  = c.chilledStand.checkTemp()
-                print(f'{str(c)} chilled stand is at {temperature} °F and the cooler is \
-                      {"ON" if status else "OFF"}')
+                c.generateLeak(0.9) #randome chance included in the code
+
                 #output += ^^^
-                #Step #4 call restack on every iteration of while loop
-                c.checkDelivered() #check if restack is needed
-                c.robot.restack(c.fullShelf.bottles, c.chilledStand.bottle, c.emptyShelf.bottles) #restack anyway
+                
                 
             time.sleep(1)
             #yield output
@@ -113,6 +115,7 @@ class Simulation:
 def main():
     numCust = input("Please enter the number of customers for simulation: ")
     s = Simulation(numCust)
+    
     s.process()
     s.run()
         

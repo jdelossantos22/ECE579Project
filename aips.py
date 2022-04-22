@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import deepcopy,copy
 import itertools
 from venv import create
 from graph import Edge, Node, Graph
@@ -19,34 +19,58 @@ class Dispatcher(Node):
     def addCustomers(self, customers, graph):
         self.customers = customers
         self.graph = graph
+        
     def getOutput(self):
         return self.output
     
     def dispatch(self):
         #numBottles is number of bottles to be dispatched
         #instantiate the bottles
-        self.utput = ""
+        self.output = ""
         # Drink amount varies from 0.1 to 0.3 whenever the i_count mod 5 == 0
         numBottles = sum([c.replenishNum for c in self.needsDispatch])
         self.bottles = [Bottle(curVolume=4.0) for i in range(numBottles)]
         #call TSP method on customers list to be replenished
-        temp =  f"The following customers needs replenishing: {self.needsDispatch}\n"
+        temp =  f"The following customers needs service: {self.needsDispatch}\n"
         self.output += temp
         print(temp)
         (Optimal_PathLength,Best_Route) = self.graph.tsp_arr(self.needsDispatch)
         #print(type(Best_Route))
         Route_Customers = Best_Route[1:-1]
-        temp = "Dispatcher is starting their delivery\n"
+        temp = "Dispatcher is starting their route\n"
         self.output += temp
         print(temp)
         for c in Route_Customers:
-            #adding bottles to shelf and also removing bottle object from list to be delivered
-            full = [c.fullShelf.addBottle(self.bottles.pop(0)) for n in range(c.replenishNum)]
-            c.replenish = False if full else True #checking if Full Shelf is full
-            c.delivery = True
-            temp = f'{c.replenishNum} bottles has been delivered to {c}\n'
-            self.output += temp
-            print(temp)
+            if c.replenish:
+                #adding bottles to shelf and also removing bottle object from list to be delivered
+                full = [c.fullShelf.addBottle(self.bottles.pop(0)) for n in range(c.replenishNum)]
+                #collect empty bottles
+                collectEmptyBottles = c.emptyShelf.bottles
+                c.emptyShelf.bottles = []
+                c.replenish = False if full else True #checking if Full Shelf is full
+                c.delivery = True
+                temp = f'{c.replenishNum} bottles has been delivered to {c}\n'
+                self.output += temp
+                print(temp)
+            if c.leak:
+                bottleList = copy(c.fullShelf.bottles)
+                bottleList.append(c.chilledStand.bottle)
+                collectDamagedBottles = []
+                for bottle in bottleList:
+                    if bottle.leakBool:
+                        collectDamagedBottles.append(bottle)
+                for bottle in collectDamagedBottles:
+                    for i, item in enumerate(c.fullShelf.bottles):
+                        if bottle == item:
+                            c.fullShelf.bottles.pop(i)
+                    if c.chilledStand.bottle == bottle:
+                        c.chilledStand.bottle.lastCheckedVol = c.chilledStand.bottle.curVolume
+                #del collectDamagedBottles
+                temp = f'Fixed leak detected in customer {c}\n'
+                self.output += temp
+                print(temp)
+                c.leak = False
+            
         
         
         
@@ -89,18 +113,36 @@ class Customer(Node):
         
         
     def checkShelves(self):
-        if self.fullShelf.curBottles <= 1:
+        if self.fullShelf.curBottles == 0:
             self.replenish = True
+            self.replenishNum = 3
             return True
-        elif self.stand.bottle.curVolume <= (1/4)*self.stand.bottle.capacity:
+        elif self.fullShelf.curBottles == 1 and \
+            self.chilledStand.bottle.curVolume <= (1/4)*self.chilledStand.bottle.capacity:
             self.replenish = True
+            self.replenishNum = 2
             return True
         else: 
             return False
         
     def checkDelivered(self):
         if self.delivery:
-            if self.robot.restack(): #if restacking is successful
+            restack_out = self.robot.restack(self.fullShelf.bottles, self.chilledStand.bottle, self.emptyShelf.bottles)
+            if restack_out: #if restacking is successful
+                #update shelves
+                self.fullShelf.bottles = restack_out["fullShelf"]
+                self.emptyShelf.bottles = restack_out["emptyShelf"]
+                self.chilledStand.bottle = restack_out["onStand"][0]
+                self.delivery = False
+    
+    def checkStand(self):
+        if not isinstance(self.chilledStand.bottle, Bottle) or self.chilledStand.bottle.empty():
+            restack_out = self.robot.restack(self.fullShelf.bottles, self.chilledStand.bottle, self.emptyShelf.bottles)
+            if restack_out: #if restacking is successful
+                #update shelves
+                self.fullShelf.bottles = restack_out["fullShelf"]
+                self.emptyShelf.bottles = restack_out["emptyShelf"]
+                self.chilledStand.bottle = restack_out["onStand"][0]
                 self.delivery = False
                 
     def deliveryArrived(self):
@@ -110,20 +152,22 @@ class Customer(Node):
         return self.leak
     
     def generateLeak(self, percentage):
-        bottleList = self.fullShelf.bottles
+        #bottleList = copy(self.fullShelf.bottles)
+        bottleList = []
         bottleList.append(self.chilledStand.bottle)
         
         for bottle in bottleList:
             chance = random.random()
             if chance < percentage:
                 bottle.leakBool = True
+                bottle.decrementVol(0.01)
     
     def consumeWater(self):
-        self.chilledStand.bottle.decrementVol(random.random()*self.chilledStand.bottle.capacity)
-        self.chilledStand.bottle.lastCheckedVol = self.chilledStand.bottle.curVolume
+        self.chilledStand.drink()
+        
         
     def detectLeak(self):
-        bottleList = self.fullShelf.bottles
+        bottleList = copy(self.fullShelf.bottles)
         bottleList.append(self.chilledStand.bottle)
         #leak = False
         output = ""
@@ -174,6 +218,8 @@ class Stand:
     def drink(self):
         vol = random.random() * self.bottle.capacity
         self.bottle.decrementVol(vol)
+        #self.chilledStand.bottle.lastCheckedVol = self.chilledStand.bottle.curVolume
+        self.bottle.lastCheckedVol = self.bottle.curVolume
         return vol
         
 
@@ -304,29 +350,49 @@ class Robot:
         #if the bottle on stand is empty replace it with the oldest water on the shelf
         #lenOnStand = len(createdSorted) - 1 if onStand.empty() else len(createdSorted)
         #onStand = createdSorted[-1] if onStand.empty() else onStand
+        goal = {"fullShelf":[],"emptyShelf":[],"onStand":[]}
+        goal["emptyShelf"] = copy(emptyShelf)
+        goal["fullShelf"] = copy(createdSorted)
         
         if not isinstance(onStand, Bottle): #if there are no onstand
             onstandState = restack.ONSHELFSTAND(createdSorted[-1])
             clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
             lenOnStand = len(createdSorted) - 2 
             topBottle = createdSorted[-2]
+            
+            #onStand.change(createdSorted[-1])
+            goal["fullShelf"].pop(-1)
+            goal["onStand"].append(createdSorted[-1])
+            
         elif onStand.empty():
             onstandState = restack.ONSHELFSTAND(createdSorted[-1]) # on stand should be the oldest bottle in the full shelf
             clearOnStand = restack.TOPBOTTLE(createdSorted[-1]) 
             lenOnStand = len(createdSorted) - 2 
             topBottle = createdSorted[-2]
-            emptyShelf.append(onStand) #emptyshelf needs to be added
+            
+            #emptyShelf.append(onStand) #emptyshelf needs to be added
+            goal["emptyShelf"].append(onStand)
+            goal["fullShelf"].pop(-1)
+            #onStand.change()
+            goal["onStand"].append(createdSorted[-1])
+            
+            
         else:
             onstandState = restack.ONSHELFSTAND(onStand)
-            clearOnStand = restack.TOPBOTTLE(createdSorted[-1])
+            clearOnStand = restack.TOPBOTTLE(onStand)
             lenOnStand = len(createdSorted)
             topBottle = createdSorted[-1]
+            goal["onStand"].append(onStand)
         
         for i in range(lenOnStand):
             try:
                 on_states.append(restack.ON(createdSorted[i+1], createdSorted[i]))
+                
             except IndexError:
                 continue
+        
+        
+        
             
         goalState = deepcopy(on_states)
         goalState.append(onstandState)
@@ -351,12 +417,12 @@ class Robot:
         steps = goal_stack.get_steps()
 
         print(steps)
-        last_element = [steps[-6], steps[-5]]
+        #last_element = [steps[-6], steps[-5]]
 
-        for x in last_element:
-            steps.append(x)
+        # for x in last_element:
+        #     steps.append(x)
         
-        return True
+        return goal
         
         
         
