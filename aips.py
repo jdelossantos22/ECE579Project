@@ -13,35 +13,48 @@ LEAK_PERCENTAGE = 0.2
 class Dispatcher(Node):
     def __init__(self, name="Dispatcher"):
         Node.__init__(self, name)
+        self.output = ""
         return
     
     def addCustomers(self, customers, graph):
         self.customers = customers
         self.graph = graph
+    def getOutput(self):
+        return self.output
     
     def dispatch(self):
         #numBottles is number of bottles to be dispatched
         #instantiate the bottles
-        
+        self.utput = ""
         # Drink amount varies from 0.1 to 0.3 whenever the i_count mod 5 == 0
         numBottles = sum([c.replenishNum for c in self.needsDispatch])
         self.bottles = [Bottle(curVolume=4.0) for i in range(numBottles)]
         #call TSP method on customers list to be replenished
-        print(f"The following customers needs replenishing: {self.needsDispatch}")
+        temp =  f"The following customers needs replenishing: {self.needsDispatch}\n"
+        self.output += temp
+        print(temp)
         (Optimal_PathLength,Best_Route) = self.graph.tsp_arr(self.needsDispatch)
-        print(type(Best_Route))
+        #print(type(Best_Route))
         Route_Customers = Best_Route[1:-1]
-        print("Dispatcher is starting their delivery")
+        temp = "Dispatcher is starting their delivery\n"
+        self.output += temp
+        print(temp)
         for c in Route_Customers:
             #adding bottles to shelf and also removing bottle object from list to be delivered
             full = [c.fullShelf.addBottle(self.bottles.pop(0)) for n in range(c.replenishNum)]
             c.replenish = False if full else True #checking if Full Shelf is full
             c.delivery = True
-            print(f'{c.replenishNum} bottles has been delivered to {c}')
+            temp = f'{c.replenishNum} bottles has been delivered to {c}\n'
+            self.output += temp
+            print(temp)
+        
         
         
     def checkCustomersReplenishLeak(self):
-        print("Checking which customers needs to be replenished or have a leak")
+        self.output = ""
+        temp = "Checking which customers needs to be replenished or have a leak\n"
+        self.output += temp
+        print(temp)
         self.needsDispatch = []
         
         for c in self.customers:
@@ -118,6 +131,7 @@ class Customer(Node):
             if bottle.curVolume != bottle.lastCheckedVol:
                 bottle.leakBool = True
                 output += f"{self.name}: Bottle {bottle.id} has a leak\n"
+                self.leak = True
                 
         print(output)
         return output
