@@ -146,8 +146,13 @@ class Customer(Node):
                 self.fullShelf.bottles = restack_out["fullShelf"]
                 self.emptyShelf.bottles = restack_out["emptyShelf"]
                 self.chilledStand.bottle = restack_out["onStand"][0]
+                self.fullShelf.curBottles = len(self.fullShelf.bottles)
+                self.emptyShelf.curBottles = len(self.emptyShelf.bottles)
                 self.delivery = False
             print(f'Bottle {self.chilledStand.bottle} has been put on the stand')
+            return True
+        else:
+            return False
                 
     def deliveryArrived(self):
         self.delivery = True
@@ -316,8 +321,8 @@ class Robot:
         #deliverySorted = sorted(bottles, key=lambda x: x.deliveredAt) #delivery matters for the initial state
         deliverySorted = bottles #bottom to top
         createdSorted = sorted(bottles, key=lambda x : x.createdAt, reverse=True) #created matters for the goal state #newest to oldest
-        print(deliverySorted)
-        print(createdSorted)
+        #print(deliverySorted)
+        #print(createdSorted)
         
         on_states = []
         for i in range(len(deliverySorted)):
@@ -348,7 +353,7 @@ class Robot:
         
         initialState.append(topBottleState)
         initialState.append(restack.ARMEMPTY())
-        print(initialState)
+        print(f'Initial State: {initialState}')
         #print(on_states)
         
         on_states = []
@@ -417,12 +422,12 @@ class Robot:
             goalState.append(restack.ONTABLE(emptyShelf[0]))
             goalState.append(restack.TOPBOTTLE(emptyShelf[-1]))
         
-        print(goalState)
+        print(f'Goal State: {goalState}')
         
         goal_stack = restack.GoalStackPlanner(initial_state=initialState, goal_state=goalState)
         steps = goal_stack.get_steps()
 
-        print(steps)
+        print(f'Steps: {steps}')
         #last_element = [steps[-6], steps[-5]]
 
         # for x in last_element:

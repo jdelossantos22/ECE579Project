@@ -72,13 +72,13 @@ class Simulation:
         start_time = time.time()
         next_time = start_time + 5
         while(True):
-            sim_time = time.time() - start_time
-            if sim_time >= 5:
-                start_time = time.time()
-                next_time = start_time + 5
-                choice = input("Continue Simulation? (y/n): ")
-                if choice.lower() != "y":
-                    break
+            # sim_time = time.time() - start_time
+            # if sim_time >= 5:
+            #     start_time = time.time()
+            #     next_time = start_time + 30
+            #     choice = input("Continue Simulation? (y/n): ")
+            #     if choice.lower() != "y":
+            #         break
                 
             i_count += 1
             
@@ -88,6 +88,9 @@ class Simulation:
             if (num > 0): #we need to deliver water bottles
                 self.dispatcher.dispatch()
                 #output += self.dispatcher.dispatch()
+                choice = input("Continue Simulation? (y/n): ")
+                if choice.lower() != "y":
+                    break
             
             
             for c in self.customers:
@@ -95,7 +98,10 @@ class Simulation:
                 #Step #4 call restack on every iteration of while loop
                 c.checkDelivered() #check if restack is needed
                 #c.robot.restack(c.fullShelf.bottles, c.chilledStand.bottle, c.emptyShelf.bottles) #restack anyway
-                c.checkStand() #check stand if bottle is empty
+                if c.checkStand(): #check stand if bottle is empty
+                    choice = input("Continue Simulation? (y/n): ")
+                    if choice.lower() != "y":
+                        break
                 c.detectLeak() #check for leak in all the bottles in the house
                 # Each customer gets a random # between 1 and 100 for event triggering
                 #Step #3.b Check dispenser temperature
