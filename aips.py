@@ -109,14 +109,14 @@ class Customer(Node):
         self.leak = False
         
         self.replenish = True
-        self.replenishNum = 3 #number of bottles to be replenished?
+        self.replenishNum = 4 #number of bottles to be replenished?
         self.delivery = True #there has been a delivery used to call robot restack
         
         
     def checkShelves(self):
-        if self.fullShelf.curBottles == 0:
+        if self.fullShelf.curBottles == 0 and not isinstance(self.chilledStand.bottle, Bottle):
             self.replenish = True
-            self.replenishNum = 3
+            self.replenishNum = 4
             return True
         elif self.fullShelf.curBottles == 1 and \
             self.chilledStand.bottle.curVolume <= (1/4)*self.chilledStand.bottle.capacity:
