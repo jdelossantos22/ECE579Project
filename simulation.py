@@ -1,3 +1,4 @@
+from datetime import timedelta
 from aips import *
 from graph import Graph, Node, Edge
 from restack import *
@@ -71,6 +72,7 @@ class Simulation:
         i_count = 0
         start_time = time.time()
         next_time = start_time + 5
+        simulated_time_start = datetime.datetime.now()
         while(True):
             # sim_time = time.time() - start_time
             # if sim_time >= 5:
@@ -79,7 +81,8 @@ class Simulation:
             #     choice = input("Continue Simulation? (y/n): ")
             #     if choice.lower() != "y":
             #         break
-                
+            sim_time = simulated_time_start + timedelta(hours=i_count)
+            print(f"Current Simulated Time: {sim_time}", end="\n\n")
             i_count += 1
             
             output = ""
