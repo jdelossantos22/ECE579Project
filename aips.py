@@ -382,6 +382,7 @@ class Robot:
             topBottle = createdSorted[-2]
             
             #emptyShelf.append(onStand) #emptyshelf needs to be added
+            emptyShelf.append(onStand)
             goal["emptyShelf"].append(onStand)
             goal["fullShelf"].pop(-1)
             #onStand.change()
